@@ -37,6 +37,7 @@ type SavedPath = {
   name: string;
   path: string;
   folderId: string;
+  appType?: string;
 };
 
 export function FileExplorer({ activeDevice }: FileExplorerProps) {
@@ -57,6 +58,7 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [targetFolderId, setTargetFolderId] = useState<string>('');
+  const [targetAppType, setTargetAppType] = useState<string | undefined>();
 
   // Load saved paths from localStorage
   useEffect(() => {
@@ -69,22 +71,24 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
     localStorage.setItem('savedPaths', JSON.stringify(savedPaths));
   }, [savedPaths]);
 
-  const handleSavePath = () => {
-    const newPath = {
-      name: currentFolder.name,
-      path: breadcrumbs.map(b => b.name).join('/'),
-      folderId: currentFolder.id,
-    };
-    setSavedPaths(prev => [...prev, newPath]);
+const handleSavePath = () => {
+  const newPath = {
+    name: currentFolder.name,
+    path: breadcrumbs.map(b => b.name).join('/'),
+    folderId: currentFolder.id,
+    appType: currentFolder.appType,
   };
+  setSavedPaths(prev => [...prev, newPath]);
+};
 
-  const handleDropOnPath = (e: React.DragEvent, folderId: string) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    setFilesToUpload(files);
-    setTargetFolderId(folderId);
-    setIsDialogOpen(true);
-  };
+const handleDropOnPath = (e: React.DragEvent, path: SavedPath) => {
+  e.preventDefault();
+  const files = Array.from(e.dataTransfer.files);
+  setFilesToUpload(files);
+  setTargetFolderId(path.folderId);
+  setTargetAppType(path.appType);
+  setIsDialogOpen(true);
+};
 
   return (
     <div className="space-y-4">
@@ -276,15 +280,17 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
               {savedPaths.map((path, index) => (
                 <div
                   key={index}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setHoveredPathIndex(index);
-                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => handleDropOnPath(e, path)}
+                  // onDragOver={(e) => {
+                  //   e.preventDefault();
+                  //   setHoveredPathIndex(index);
+                  // }}
                   onDragLeave={() => setHoveredPathIndex(null)}
-                  onDrop={(e) => {
-                    setHoveredPathIndex(null);
-                    handleDropOnPath(e, path.folderId);
-                  }}
+                  // onDrop={(e) => {
+                  //   setHoveredPathIndex(null);
+                  //   handleDropOnPath(e, path.folderId);
+                  // }}
                 >
                   <Button
                     variant="outline"
@@ -309,7 +315,7 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
         files={filesToUpload}
         folderId={targetFolderId}
         activeDevice={activeDevice}
-        appType={currentFolder.appType}
+        appType={targetAppType || currentFolder.appType}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onUploadComplete={() => {
