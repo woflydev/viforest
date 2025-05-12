@@ -50,7 +50,7 @@ export function StorageIndicator({ activeDevice, minimalist }: StorageIndicatorP
     <div className={minimalist ? "space-y-2" : "space-y-4"}>
       <div className="flex items-center gap-2 mb-1">
         <HardDrive className="h-4 w-4" />
-        <span className="font-medium text-sm">Storage</span>
+        <span className="font-medium text-lg">Storage</span>
       </div>
       {loading ? (
         <div className="flex items-center justify-center py-2">
@@ -84,7 +84,7 @@ export function StorageIndicator({ activeDevice, minimalist }: StorageIndicatorP
         </div>
       ) : (
         <div className="text-center py-2 text-muted-foreground text-sm">
-          No storage information available
+          No storage information available.
         </div>
       )}
     </div>

@@ -1,18 +1,21 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Dock, DockIcon } from '@/components/magicui/dock';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { buttonVariants } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
-import { HomeIcon, Settings2Icon } from 'lucide-react';
+import { HomeIcon, Info, Settings2Icon } from 'lucide-react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DeviceConnectionManager } from '@/components/connection/DeviceConnectionManager';
 import { StorageIndicator } from '@/components/storage/StorageIndicator';
 import { useDeviceConnections } from '@/hooks/useDeviceConnections';
+import { Skeleton } from "./ui/skeleton";
+import { AboutModal } from "./AboutModal";
 
 export function Navbar() {
   const [showModal, setShowModal] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const { activeDevice } = useDeviceConnections();
 
   // Keyboard shortcut for settings (optional)
@@ -70,6 +73,23 @@ export function Navbar() {
         <DockIcon>
           <Tooltip>
             <TooltipTrigger asChild>
+              <button
+                aria-label="About"
+                className={buttonVariants({ variant: "ghost", size: "icon" }) + " size-12 rounded-full"}
+                onClick={() => setShowAbout(true)}
+                type="button"
+              >
+                <Info className="size-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>About</p>
+            </TooltipContent>
+          </Tooltip>
+        </DockIcon>
+        <DockIcon>
+          <Tooltip>
+            <TooltipTrigger asChild>
               <ModeToggle />
             </TooltipTrigger>
             <TooltipContent>
@@ -81,19 +101,23 @@ export function Navbar() {
 
       {/* Unified Settings Modal: Devices first, then Storage */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-lg w-full p-0 overflow-hidden">
+        <DialogContent className="max-w-lg w-full p-0 overflow-hidden [&>button:last-child]:hidden">
           <div className="p-4 space-y-6">
             <div>
-              <h2 className="text-base font-semibold mb-2">Devices</h2>
-              <DeviceConnectionManager minimalist />
+              <React.Suspense fallback={<Skeleton className="h-24 w-full rounded" />}>
+                <DeviceConnectionManager minimalist  />
+              </React.Suspense>
             </div>
             <div>
-              <h2 className="text-base font-semibold mb-2">Storage</h2>
-              <StorageIndicator activeDevice={activeDevice} minimalist />
+              <React.Suspense fallback={<Skeleton className="h-24 w-full rounded" />}>
+                <StorageIndicator activeDevice={activeDevice} minimalist />
+              </React.Suspense>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      <AboutModal open={showAbout} onOpenChange={setShowAbout} />
     </TooltipProvider>
   );
 }
