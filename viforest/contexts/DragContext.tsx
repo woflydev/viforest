@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useRe
 
 interface DragContextState {
   isDraggingFilesOverSite: boolean;
+  resetDragState: () => void;  // New function to reset the drag state
 }
 
 const DragContext = createContext<DragContextState | undefined>(undefined);
@@ -22,10 +23,12 @@ interface DragProviderProps {
 
 export const DragProvider: React.FC<DragProviderProps> = ({ children }) => {
   const [isDraggingFilesOverSite, setIsDraggingFilesOverSite] = useState(false);
-  // Ref to count active file drag operations that have entered the window.
-  // This helps ensure setIsDraggingFilesOverSite(true) is called reliably
-  // on the first entry and not toggled off prematurely by internal dragleave events.
   const activeFileDragEntryRef = useRef(0);
+
+    const resetDragState = () => {
+    activeFileDragEntryRef.current = 0;
+    setIsDraggingFilesOverSite(false);
+  };
 
   useEffect(() => {
     const handleWindowDragOver = (e: DragEvent) => {
@@ -89,7 +92,7 @@ export const DragProvider: React.FC<DragProviderProps> = ({ children }) => {
   }, []); // Empty dependency array: effect runs once on mount, cleans up on unmount.
 
   return (
-    <DragContext.Provider value={{ isDraggingFilesOverSite }}>
+    <DragContext.Provider value={{ isDraggingFilesOverSite, resetDragState }}>
       {children}
     </DragContext.Provider>
   );

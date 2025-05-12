@@ -64,7 +64,7 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
 
   const [siteHovered, setSiteHovered] = useState(false); // Still useful for other hover effects if needed
   const explorerRef = useRef<HTMLDivElement>(null);
-  const { isDraggingFilesOverSite } = useGlobalDragState();
+  const { isDraggingFilesOverSite, resetDragState } = useGlobalDragState();
 
   useEffect(() => {
     const currentExplorerRef = explorerRef.current;
@@ -171,8 +171,6 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
             <span className="flex items-center gap-2"><Folder className="h-4 w-4" />Files</span>
             <span className="flex items-center gap-1">
               <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={refreshCurrentFolder} disabled={!activeDevice?.isConnected || loading}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /></Button></TooltipTrigger><TooltipContent>Refresh</TooltipContent></Tooltip>
-              <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={navigateUp} disabled={!activeDevice?.isConnected || breadcrumbs.length <= 1 || loading}><ArrowUp className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>Go Up</TooltipContent></Tooltip>
-              <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={() => breadcrumbs.length > 0 && navigateToBreadcrumb(breadcrumbs[0])} disabled={!activeDevice?.isConnected || !currentFolder?.id || loading}><Home className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>Home</TooltipContent></Tooltip>
               <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={handleSavePath} disabled={!activeDevice?.isConnected || loading || !currentFolder?.id}><Bookmark className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>Save Path</TooltipContent></Tooltip>
               <UploadButton activeDevice={activeDevice} currentFolderId={currentFolder.id} appType={currentFolder.appType} onUploadComplete={refreshCurrentFolder} />
             </span>
@@ -200,8 +198,8 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
               <div 
                 className={`py-1 overflow-hidden ${
                   isDraggingFilesOverSite 
-                    ? 'flex flex-col items-center gap-2' // Vertical layout
-                    : 'flex flex-row gap-3 overflow-x-auto scrollbar-thin' // Horizontal layout
+                    ? 'flex flex-col items-center gap-2' // Vertical layout (already centered)
+                    : 'flex flex-row flex-wrap justify-center gap-3 py-2' // Horizontal layout with centering
                 }`}
               >
                 {mergedSavedPaths.map((path, index) => {
@@ -267,7 +265,6 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
                       initial={cardShouldExpand ? "expanded" : "collapsed"}
                     >
                       <Tooltip>
-                        <TooltipTrigger asChild>
                           <Button
                             variant={buttonVariant}
                             size="sm"
@@ -279,10 +276,6 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
                             <Folder className={`h-3.5 w-3.5 ${cardShouldExpand ? 'h-4 w-4' : ''}`} />
                             <span className="truncate flex-1 text-left">{path.name}</span>
                           </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                          <p>Drop files to: <span className="font-semibold">{path.name}</span></p>
-                        </TooltipContent>
                       </Tooltip>
                       {isUserPath && userPathIndex !== -1 && (
                         <motion.div 
@@ -346,11 +339,13 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
           setIsDialogOpen(open);
           if (!open) {
             setHoveredPathIndex(null);
+            resetDragState(); // Explicitly reset drag state when dialog is closed
           }
         }}
         onUploadComplete={() => {
           refreshCurrentFolder();
           setFilesToUpload([]);
+          resetDragState(); // Also reset when upload completes
         }}
       />
     </div>
