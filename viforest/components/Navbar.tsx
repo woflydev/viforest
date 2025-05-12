@@ -28,7 +28,11 @@ export function Navbar() {
 
   return (
     <TooltipProvider>
-      <Dock className="fixed bottom-0 left-0 right-0 z-50 mx-auto mb-4">
+      <Dock 
+        className="fixed bottom-20 left-0 right-0 z-50 mx-auto mb-4"
+        iconMagnification={60} 
+        direction="middle"
+      >
         <DockIcon>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -66,7 +70,7 @@ export function Navbar() {
         <DockIcon>
           <Tooltip>
             <TooltipTrigger asChild>
-              <ModeToggle className="rounded-full size-12" />
+              <ModeToggle />
             </TooltipTrigger>
             <TooltipContent>
               <p>Theme</p>
