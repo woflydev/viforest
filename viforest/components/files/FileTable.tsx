@@ -5,7 +5,7 @@ import { FileItem, DeviceConnection } from '@/types';
 import { downloadFile } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Download, Folder, File } from 'lucide-react';
-import { formatFileSize, formatDate } from '@/lib/formatters';
+import { formatDate } from '@/lib/formatters';
 
 interface FileTableProps {
   files: FileItem[];
@@ -67,7 +67,7 @@ export function FileTable({
         <TableHeader>
           <TableRow>
             <TableHead className="w-[240px]">Name</TableHead>
-            <TableHead className="w-[80px]">Size</TableHead>
+            {/* Removed Size column */}
             <TableHead className="w-[120px]">Modified</TableHead>
             <TableHead className="text-right w-[60px]">Actions</TableHead>
           </TableRow>
@@ -91,13 +91,7 @@ export function FileTable({
                 )}
                 <span className="truncate">{file.name}</span>
               </TableCell>
-              <TableCell>
-                {file.isDirectory ? (
-                  <span className="text-muted-foreground">Folder</span>
-                ) : (
-                  formatFileSize(file.size || 0)
-                )}
-              </TableCell>
+              {/* Removed Size cell */}
               <TableCell>
                 {file.modifiedDate ? formatDate(file.modifiedDate) : '-'}
               </TableCell>

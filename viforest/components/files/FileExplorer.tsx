@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Card,
@@ -12,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import {
-  Folder, ArrowUp, RefreshCw, Home, Loader2, Bookmark, X, Pin
+  Folder, ArrowUp, RefreshCw, Home, Bookmark, X, Pin
 } from 'lucide-react';
 import {
   Breadcrumb,
@@ -26,14 +27,12 @@ import { FileTable } from './FileTable';
 import { UploadButton } from './UploadButton';
 import { UploadDialog } from '@/components/UploadDialog';
 import { useFileExplorer } from '@/hooks/useFileExplorer';
-import { DeviceConnection } from '@/types';
+import { DeviceConnection, FileItem } from '@/types';
 import { defaultSavedPaths } from '@/config/savedPaths.config';
+import { useGlobalDragState } from '@/contexts/DragContext';
 
-// Skeleton component for loading states
 function Skeleton({ className }: { className?: string }) {
-  return (
-    <div className={`bg-muted-foreground/10 rounded animate-pulse ${className || ''}`} />
-  );
+  return <div className={`bg-muted-foreground/10 rounded animate-pulse ${className || ''}`} />;
 }
 
 interface FileExplorerProps {
@@ -49,15 +48,8 @@ export type SavedPath = {
 
 export function FileExplorer({ activeDevice }: FileExplorerProps) {
   const {
-    files,
-    loading,
-    error,
-    currentFolder,
-    breadcrumbs,
-    navigateToFolder,
-    navigateToBreadcrumb,
-    refreshCurrentFolder,
-    navigateUp,
+    files, loading, error, currentFolder, breadcrumbs,
+    navigateToFolder, navigateToBreadcrumb, refreshCurrentFolder, navigateUp,
   } = useFileExplorer(activeDevice);
 
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
@@ -67,303 +59,280 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
   const [targetAppType, setTargetAppType] = useState<string | undefined>();
 
   const savedPathFileInputRef = useRef<HTMLInputElement>(null);
-
   const [userSavedPaths, setUserSavedPaths] = useState<SavedPath[]>([]);
   const [hydrated, setHydrated] = useState(false);
+
+  const [siteHovered, setSiteHovered] = useState(false); // Still useful for other hover effects if needed
+  const explorerRef = useRef<HTMLDivElement>(null);
+  const { isDraggingFilesOverSite } = useGlobalDragState();
+
+  useEffect(() => {
+    const currentExplorerRef = explorerRef.current;
+    if (!currentExplorerRef) return;
+
+    const handleExplorerDragOver = (e: DragEvent) => {
+      e.preventDefault(); // Make FileExplorer a valid drop zone
+    };
+
+    const handleExplorerDrop = (e: DragEvent) => {
+      e.preventDefault();
+      // Logic for dropping directly onto FileExplorer background (optional)
+      // Global drag state will be reset by DragContext
+    };
+
+    currentExplorerRef.addEventListener('dragover', handleExplorerDragOver);
+    currentExplorerRef.addEventListener('drop', handleExplorerDrop);
+
+    return () => {
+      currentExplorerRef.removeEventListener('dragover', handleExplorerDragOver);
+      currentExplorerRef.removeEventListener('drop', handleExplorerDrop);
+    };
+  }, []);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem('savedPaths');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) setUserSavedPaths(parsed);
-      }
-    } catch (error) {
-      console.error('Error loading saved paths:', error);
-    }
+      if (stored) setUserSavedPaths(JSON.parse(stored));
+    } catch (err) { console.error('Error loading saved paths:', err); }
     setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem('savedPaths', JSON.stringify(userSavedPaths));
-    } catch (error) {
-      console.error('Error saving paths to localStorage:', error);
+    if (hydrated) {
+      try {
+        localStorage.setItem('savedPaths', JSON.stringify(userSavedPaths));
+      } catch (err) { console.error('Error saving paths:', err); }
     }
   }, [userSavedPaths, hydrated]);
 
-  // Merge config and user paths, avoiding duplicates by folderId
   const mergedSavedPaths = [
     ...defaultSavedPaths,
-    ...userSavedPaths.filter(
-      userPath => !defaultSavedPaths.some(defaultPath => defaultPath.folderId === userPath.folderId)
-    ),
+    ...userSavedPaths.filter(up => !defaultSavedPaths.some(dp => dp.folderId === up.folderId)),
   ];
 
   const handleSavedPathFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
+    if (e.target.files?.length) {
       setFilesToUpload(Array.from(e.target.files));
       setIsDialogOpen(true);
     }
+    if (e.target) e.target.value = '';
   };
 
   const handleSavePath = () => {
-    const newPath = {
-      name: currentFolder.name,
-      path: breadcrumbs.map(b => b.name).join('/'),
+    if (!currentFolder?.id) return;
+    const newPath: SavedPath = {
+      name: currentFolder.name || "Unnamed Folder",
+      path: breadcrumbs.map(b => b.name).join('/') || '/',
       folderId: currentFolder.id,
       appType: currentFolder.appType,
     };
-    setUserSavedPaths(prev => [...prev, newPath]);
+    if (!userSavedPaths.some(p => p.folderId === newPath.folderId)) {
+      setUserSavedPaths(prev => [...prev, newPath]);
+    }
   };
 
-  const deleteSavedPath = (index: number) => {
-    setUserSavedPaths(prev => prev.filter((_, i) => i !== index));
+  const deleteSavedPath = (userPathIndex: number) => {
+    setUserSavedPaths(prev => prev.filter((_, i) => i !== userPathIndex));
   };
 
   const handleDropOnPath = (e: React.DragEvent, path: SavedPath) => {
     e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    setFilesToUpload(files);
-    setTargetFolderId(path.folderId);
-    setTargetAppType(path.appType);
-    setIsDialogOpen(true);
+    e.stopPropagation();
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (droppedFiles.length > 0) {
+      setFilesToUpload(droppedFiles);
+      setTargetFolderId(path.folderId);
+      setTargetAppType(path.appType);
+      setIsDialogOpen(true);
+    }
+    setHoveredPathIndex(null);
   };
 
-  // Fixed width for explorer and table
   const explorerWidth = "w-[800px] max-w-lg";
+  // MODIFIED: Animation for Saved Paths now *only* depends on global drag state.
+  const shouldAnimateForDrag = isDraggingFilesOverSite;
+
+  // For subtle background hover on the entire FileExplorer card, we can still use siteHovered.
+  const explorerCardBgColor = siteHovered ? "rgba(0,0,0,0.02)" : "transparent";
+
 
   return (
-    <div className={`items-center justify-center w-full ${explorerWidth}`}>
-      <Card className={`${explorerWidth} h-[80vh] max-h-[600px] flex flex-col shadow-xl border rounded-xl bg-background`}>
-        <CardHeader className="pb-2 border-b">
+    <div
+      className={`items-center justify-center w-full ${explorerWidth}`}
+      onMouseEnter={() => setSiteHovered(true)}
+      onMouseLeave={() => {
+        setSiteHovered(false);
+        setHoveredPathIndex(null);
+      }}
+    >
+      <Card ref={explorerRef} className={`${explorerWidth} h-[80vh] max-h-[600px] flex flex-col shadow-xl border rounded-xl bg-background overflow-hidden`}>
+        <CardHeader className="pb-2 border-b shrink-0">
           <CardTitle className="flex items-center justify-between text-base font-semibold">
-            <span className="flex items-center gap-2">
-              <Folder className="h-4 w-4" />
-              Files
-            </span>
+            <span className="flex items-center gap-2"><Folder className="h-4 w-4" />Files</span>
             <span className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={refreshCurrentFolder}
-                    disabled={!activeDevice?.isConnected || loading}
-                  >
-                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Refresh</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={navigateUp}
-                    disabled={!activeDevice?.isConnected || breadcrumbs.length <= 1 || loading}
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Go Up</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigateToBreadcrumb(breadcrumbs[0])}
-                    disabled={!activeDevice?.isConnected || currentFolder.id === '' || loading}
-                  >
-                    <Home className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Home</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleSavePath}
-                    disabled={!activeDevice?.isConnected || loading}
-                  >
-                    <Bookmark className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Save Path</TooltipContent>
-              </Tooltip>
-              <UploadButton
-                activeDevice={activeDevice}
-                currentFolderId={currentFolder.id}
-                appType={currentFolder.appType}
-                onUploadComplete={refreshCurrentFolder}
-              />
+              <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={refreshCurrentFolder} disabled={!activeDevice?.isConnected || loading}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /></Button></TooltipTrigger><TooltipContent>Refresh</TooltipContent></Tooltip>
+              <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={navigateUp} disabled={!activeDevice?.isConnected || breadcrumbs.length <= 1 || loading}><ArrowUp className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>Go Up</TooltipContent></Tooltip>
+              <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={() => breadcrumbs.length > 0 && navigateToBreadcrumb(breadcrumbs[0])} disabled={!activeDevice?.isConnected || !currentFolder?.id || loading}><Home className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>Home</TooltipContent></Tooltip>
+              <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={handleSavePath} disabled={!activeDevice?.isConnected || loading || !currentFolder?.id}><Bookmark className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>Save Path</TooltipContent></Tooltip>
+              <UploadButton activeDevice={activeDevice} currentFolderId={currentFolder.id} appType={currentFolder.appType} onUploadComplete={refreshCurrentFolder} />
             </span>
           </CardTitle>
           <CardDescription className="text-xs text-muted-foreground mt-1">
-            {activeDevice?.isConnected
-              ? `Browsing files on ${activeDevice.name}`
-              : 'Connect to a device to browse files'}
+            {activeDevice?.isConnected ? `Browsing: ${activeDevice.name || activeDevice.ip}` : 'Connect to a device to browse files'}
           </CardDescription>
         </CardHeader>
 
-        {/* Saved Paths Bar */}
-        <div className="px-4 py-2 border-b min-h-[48px]">
-          {!hydrated ? (
-            <div className="flex gap-2">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-7 w-[140px]" />
-              ))}
-            </div>
-          ) : mergedSavedPaths.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted-foreground/30 scrollbar-track-transparent transition-opacity duration-300 opacity-100">
-              {mergedSavedPaths.map((path, index) => {
-                const isUserPath = index >= defaultSavedPaths.length;
-                const userPathIndex = userSavedPaths.findIndex(p => p.folderId === path.folderId);
+        <div className="px-4 border-b shrink-0"> {/* Saved Paths Bar Area */}
+           <motion.div
+            layout
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            animate={{
+              paddingTop: shouldAnimateForDrag ? 20 : 8,
+              paddingBottom: shouldAnimateForDrag ? 20 : 8,
+              minHeight: shouldAnimateForDrag ? 100 : 48,
+              backgroundColor: shouldAnimateForDrag ? "rgba(0,120,255,0.05)" : explorerCardBgColor,
+            }}
+            className="overflow-hidden" // Keep overflow-hidden on the outer motion.div
+          >
+            {!hydrated ? (
+              <div className="flex gap-2 py-2"><Skeleton className="h-8 w-32 rounded" /><Skeleton className="h-8 w-32 rounded" /><Skeleton className="h-8 w-32 rounded" /></div>
+            ) : mergedSavedPaths.length > 0 ? (
+              <div 
+                className={`py-1 overflow-hidden ${
+                  isDraggingFilesOverSite 
+                    ? 'flex flex-col items-center gap-2' // Vertical layout
+                    : 'flex flex-row gap-3 overflow-x-auto scrollbar-thin' // Horizontal layout
+                }`}
+              >
+                {mergedSavedPaths.map((path, index) => {
+                  const isUserPath = !defaultSavedPaths.some(dp => dp.folderId === path.folderId);
+                  const userPathIndex = userSavedPaths.findIndex(p => p.folderId === path.folderId);
+                  
+                  const cardShouldExpand = isDraggingFilesOverSite;
+                  const isCurrentlyHovered = hoveredPathIndex === index;
 
-                return (
-                  <Tooltip key={index}>
-                    <TooltipTrigger asChild>
-                      <div
-                        className={`relative flex-shrink-0 transition-all ${
-                          hoveredPathIndex === index
-                            ? 'ring-2 ring-primary bg-primary/10'
-                            : 'bg-background'
-                        }`}
-                        style={{ minWidth: 128, maxWidth: 160 }}
-                        onDragOver={e => { e.preventDefault(); setHoveredPathIndex(index); }}
-                        onDragEnter={e => { e.preventDefault(); setHoveredPathIndex(index); }}
-                        onDragLeave={() => setHoveredPathIndex(null)}
-                        onDrop={e => {
-                          e.preventDefault();
-                          setHoveredPathIndex(null);
-                          handleDropOnPath(e, path);
-                        }}
-                      >
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className={`group flex items-center gap-1 px-2 py-1 text-xs rounded w-full justify-start pr-7 transition-all ${
-                            hoveredPathIndex === index ? 'border-primary border-2 bg-primary/10' : ''
-                          }`}
-                          style={{ width: "100%" }}
-                          onClick={() => {
-                            setTargetFolderId(path.folderId);
-                            setTargetAppType(path.appType);
-                            // Trigger file picker for this saved path
-                            savedPathFileInputRef.current?.click();
-                          }}
-                        >
-                          <Pin className="h-3 w-3 text-primary mr-1" />
-                          <Folder className="h-4 w-4 mr-1" />
-                          <span className="truncate flex-1 text-left">{path.name}</span>
-                        </Button>
-                        {isUserPath && userPathIndex !== -1 && (
-                          <span
-                            className="absolute top-1 right-1 z-10 flex items-center justify-center"
-                            style={{ width: 18, height: 18 }}
+                  // Define initial state dimensions
+                  const nonExpandedWidth = isCurrentlyHovered ? 160 : 128;
+                  
+                  // Only change the border color on hover, not the entire button variant
+                  const currentBorderColor = (isCurrentlyHovered) 
+                    ? "hsl(var(--primary))" 
+                    : "hsl(var(--border))";
+                    
+                  // Keep button variant consistent regardless of hover state
+                  const buttonVariant = "secondary";
+
+                  // Animation variants for the different states
+                  const variants = {
+                    collapsed: {
+                      width: nonExpandedWidth,
+                      minHeight: 36,
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.07)",
+                      borderRadius: 8,
+                      // Thicker, more visible border with better animation handling
+                      borderWidth: 1.5,
+                      borderColor: isCurrentlyHovered ? "hsl(var(--primary))" : "hsl(var(--border))",
+                      transition: { type: "spring", stiffness: 300, damping: 26 }
+                    },
+                    expanded: {
+                      width: "90%", // Slightly less than 100% for visual appeal
+                      minHeight: 72,
+                      boxShadow: "0 5px 20px rgba(0,0,0,0.1)",
+                      borderRadius: 12,
+                      // Thicker, more visible border with better animation handling
+                      borderWidth: 2,
+                      borderColor: isCurrentlyHovered ? "hsl(var(--primary))" : "hsl(var(--border))",
+                      transition: { 
+                        type: "spring", 
+                        stiffness: 300, 
+                        damping: 26,
+                        width: { type: "spring", stiffness: 100, damping: 20 } // Separate animation config for width
+                      }
+                    }
+                  };
+
+                  return (
+                    <motion.div
+                      key={path.folderId || `default-${index}`}
+                      variants={variants}
+                      animate={cardShouldExpand ? "expanded" : "collapsed"}
+                      layout="position"
+                      transition={{ type: "spring", stiffness: 300, damping: 26 }}
+                      // Remove 'border' class since we're animating borderWidth. Add overflow-hidden to prevent scrollbars.
+                      className={`relative bg-background rounded-lg cursor-pointer flex-shrink-0 overflow-hidden`}
+                      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); if(isDraggingFilesOverSite) setHoveredPathIndex(index); }}
+                      onDragEnter={(e) => { e.preventDefault(); if(isDraggingFilesOverSite) setHoveredPathIndex(index); }}
+                      onDragLeave={(e) => { setHoveredPathIndex(null); }}
+                      onDrop={(e) => handleDropOnPath(e, path)}
+                      initial={cardShouldExpand ? "expanded" : "collapsed"}
+                    >
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={buttonVariant}
+                            size="sm"
+                            // Add overflow-hidden to ensure no internal scrollbars
+                            className={`group flex items-center gap-1.5 px-2.5 text-xs rounded-md w-full h-full justify-start overflow-hidden ${cardShouldExpand ? 'py-3 text-sm' : 'py-1.5'}`}
+                            onClick={() => { setTargetFolderId(path.folderId); setTargetAppType(path.appType); savedPathFileInputRef.current?.click(); }}
                           >
-                            <X
-                              className="h-3 w-3 cursor-pointer opacity-60 hover:opacity-100 transition-opacity bg-background rounded-full p-0.5 shadow"
-                              onClick={e => {
-                                e.stopPropagation();
-                                deleteSavedPath(userPathIndex);
-                              }}
-                              aria-label="Remove saved path"
-                              tabIndex={0}
-                            />
-                          </span>
-                        )}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      📌 Pinned folder.<br />
-                      Click to upload files here.<br />
-                      Drag files here to upload.
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })}
-              {/* Hidden file input for saved path uploads */}
-              <input
-                type="file"
-                ref={savedPathFileInputRef}
-                onChange={handleSavedPathFileChange}
-                className="hidden"
-                multiple
-              />
-            </div>
-          )}
+                            <Pin className={`h-3 w-3 text-primary ${cardShouldExpand ? 'h-3.5 w-3.5' : ''}`} />
+                            <Folder className={`h-3.5 w-3.5 ${cardShouldExpand ? 'h-4 w-4' : ''}`} />
+                            <span className="truncate flex-1 text-left">{path.name}</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p>Drop files to: <span className="font-semibold">{path.name}</span></p>
+                        </TooltipContent>
+                      </Tooltip>
+                      {isUserPath && userPathIndex !== -1 && (
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.5 }} 
+                          animate={{ 
+                            opacity: cardShouldExpand ? 1 : (siteHovered && isCurrentlyHovered ? 0.9 : 0.5),
+                            scale: 1 
+                          }} 
+                          transition={{ delay: cardShouldExpand ? 0.1 : 0 }} 
+                          className="absolute top-1 right-1 z-10"
+                        >
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-5 w-5 rounded-full hover:bg-destructive/20" 
+                            onClick={e => { e.stopPropagation(); deleteSavedPath(userPathIndex); }} 
+                            aria-label="Remove saved path"
+                          >
+                            <X className="h-3 w-3 opacity-70 group-hover:opacity-100" />
+                          </Button>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+                <input type="file" ref={savedPathFileInputRef} onChange={handleSavedPathFileChange} className="hidden" multiple />
+              </div>
+            ) : ( <div className="text-xs text-muted-foreground py-3 text-center">No saved paths. Pin a folder to add it here.</div> )}
+          </motion.div>
         </div>
 
-        {/* Breadcrumbs */}
-        <div className="px-4 py-2 bg-background border-b">
+        <div className="px-4 py-2 bg-background border-b shrink-0">
           <Breadcrumb>
             <BreadcrumbList>
-              {breadcrumbs.map((breadcrumb, index) => (
-                <React.Fragment key={breadcrumb.id || 'root'}>
-                  {index > 0 && <BreadcrumbSeparator />}
-                  {index === breadcrumbs.length - 1 ? (
-                    <BreadcrumbPage>{breadcrumb.name}</BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbItem>
-                      <BreadcrumbLink
-                        onClick={() => navigateToBreadcrumb(breadcrumb)}
-                        className="cursor-pointer hover:text-primary transition-colors"
-                      >
-                        {breadcrumb.name}
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
-                  )}
+              {breadcrumbs.map((breadcrumb, idx) => (
+                <React.Fragment key={breadcrumb.id || `breadcrumb-${idx}`}>
+                  {idx > 0 && <BreadcrumbSeparator />}
+                  {idx === breadcrumbs.length - 1 ? <BreadcrumbPage className="truncate max-w-[200px]">{breadcrumb.name}</BreadcrumbPage> : <BreadcrumbItem><BreadcrumbLink onClick={() => navigateToBreadcrumb(breadcrumb)} className="cursor-pointer hover:text-primary truncate max-w-[150px]">{breadcrumb.name}</BreadcrumbLink></BreadcrumbItem>}
                 </React.Fragment>
               ))}
             </BreadcrumbList>
           </Breadcrumb>
         </div>
 
-        {/* File List */}
         <CardContent className="flex-1 min-h-0 p-0 overflow-y-auto bg-background">
-          {!activeDevice?.isConnected ? (
-            <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-8">
-              <Folder className="h-10 w-10 mb-2 opacity-50" />
-              <p className="text-xs">Connect to a device to browse files</p>
-            </div>
-          ) : loading ? (
-            <div className="flex flex-col gap-2 px-4 py-8">
-              {[...Array(8)].map((_, i) => (
-                <Skeleton key={i} className="h-8 w-full" />
-              ))}
-            </div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center h-full text-destructive py-8">
-              <p className="text-xs">{error}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={refreshCurrentFolder}
-                className="mt-2"
-              >
-                Try Again
-              </Button>
-            </div>
-          ) : files.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-8">
-              <p className="text-xs">No files found in this folder</p>
-            </div>
-          ) : (
-            <ScrollArea className="h-full">
-              <FileTable
-                files={files}
-                onFileClick={navigateToFolder}
-                activeDevice={activeDevice}
-                onFileActionComplete={refreshCurrentFolder}
-              />
-            </ScrollArea>
-          )}
+          {!activeDevice?.isConnected ? <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-8"><Folder className="h-10 w-10 mb-2 opacity-50" /><p className="text-xs">Connect to a device</p></div>
+            : loading ? <div className="flex flex-col gap-1 p-2">{[...Array(10)].map((_, i) => <Skeleton key={i} className="h-9 w-full rounded" />)}</div>
+            : error ? <div className="flex flex-col items-center justify-center h-full text-destructive py-8 px-4 text-center"><p className="text-sm font-medium">Error: {error}</p><Button variant="outline" size="sm" onClick={refreshCurrentFolder} className="mt-3">Try Again</Button></div>
+            : files.length === 0 ? <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-8"><Folder className="h-8 w-8 mb-2 opacity-50" /><p className="text-xs">Folder is empty</p></div>
+            : <ScrollArea className="h-full"><FileTable files={files} onFileClick={navigateToFolder} activeDevice={activeDevice} onFileActionComplete={refreshCurrentFolder} /></ScrollArea>}
         </CardContent>
       </Card>
 
@@ -373,7 +342,12 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
         activeDevice={activeDevice}
         appType={targetAppType || currentFolder.appType}
         open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            setHoveredPathIndex(null);
+          }
+        }}
         onUploadComplete={() => {
           refreshCurrentFolder();
           setFilesToUpload([]);
