@@ -25,14 +25,10 @@ export function FileTable({
 
   const handleDownload = async (file: FileItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    
     if (!activeDevice) return;
-    
     setDownloadingFileId(file.id);
-    
     try {
       const success = await downloadFile(activeDevice.ip, file);
-      
       if (success) {
         toast({
           title: 'Download complete',
@@ -66,55 +62,61 @@ export function FileTable({
   });
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[300px]">Name</TableHead>
-          <TableHead>Size</TableHead>
-          <TableHead>Modified</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {sortedFiles.map((file) => (
-          <TableRow 
-            key={file.id}
-            onClick={() => onFileClick(file)}
-            className={file.isDirectory ? 'cursor-pointer hover:bg-muted/50' : 'hover:bg-muted/20'}
-          >
-            <TableCell className="font-medium flex items-center space-x-2">
-              {file.isDirectory ? (
-                <Folder className="h-5 w-5 text-blue-500" />
-              ) : (
-                <File className="h-5 w-5 text-muted-foreground" />
-              )}
-              <span>{file.name}</span>
-            </TableCell>
-            <TableCell>
-              {file.isDirectory ? (
-                <span className="text-muted-foreground">Folder</span>
-              ) : (
-                formatFileSize(file.size || 0)
-              )}
-            </TableCell>
-            <TableCell>
-              {file.modifiedDate ? formatDate(file.modifiedDate) : '-'}
-            </TableCell>
-            <TableCell className="text-right">
-              {!file.isDirectory && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => handleDownload(file, e)}
-                  disabled={downloadingFileId === file.id}
-                >
-                  <Download className={`h-4 w-4 ${downloadingFileId === file.id ? 'animate-pulse' : ''}`} />
-                </Button>
-              )}
-            </TableCell>
+    <div className="w-full">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[240px]">Name</TableHead>
+            <TableHead className="w-[80px]">Size</TableHead>
+            <TableHead className="w-[120px]">Modified</TableHead>
+            <TableHead className="text-right w-[60px]">Actions</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {sortedFiles.map((file) => (
+            <TableRow 
+              key={file.id}
+              onClick={() => file.isDirectory && onFileClick(file)}
+              className={
+                file.isDirectory
+                  ? 'cursor-pointer hover:bg-muted/50'
+                  : 'hover:bg-muted/20'
+              }
+            >
+              <TableCell className="font-medium flex items-center gap-2">
+                {file.isDirectory ? (
+                  <Folder className="h-4 w-4 text-blue-500" />
+                ) : (
+                  <File className="h-4 w-4 text-muted-foreground" />
+                )}
+                <span className="truncate">{file.name}</span>
+              </TableCell>
+              <TableCell>
+                {file.isDirectory ? (
+                  <span className="text-muted-foreground">Folder</span>
+                ) : (
+                  formatFileSize(file.size || 0)
+                )}
+              </TableCell>
+              <TableCell>
+                {file.modifiedDate ? formatDate(file.modifiedDate) : '-'}
+              </TableCell>
+              <TableCell className="text-right">
+                {!file.isDirectory && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => handleDownload(file, e)}
+                    disabled={downloadingFileId === file.id}
+                  >
+                    <Download className={`h-4 w-4 ${downloadingFileId === file.id ? 'animate-pulse' : ''}`} />
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
