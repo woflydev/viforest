@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { DeviceConnectionManager } from '@/components/connection/DeviceConnectionManager';
 import { FileExplorer } from '@/components/files/FileExplorer';
 import { StorageIndicator } from '@/components/storage/StorageIndicator';
