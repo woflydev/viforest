@@ -47,6 +47,7 @@ export interface FileItem {
   showBitmapPath?: string;
   size: number;
   updateTime: number;
+  fileFormat: string;
   // UI-specific fields
   id: string;
   name: string;

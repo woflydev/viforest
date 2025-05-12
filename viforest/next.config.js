@@ -1,16 +1,20 @@
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-});
+// const withPWA = require('next-pwa')({
+//   dest: 'public',
+//   register: true,
+//   skipWaiting: true,
+// });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Remove distDir and basePath - these are mainly for static exports
+  trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
-  images: { unoptimized: true },
+  images: { 
+    // Change this if not doing static export
+    domains: ['localhost'] // Add any domains you're loading images from
+  },
 };
 
-module.exports = withPWA(nextConfig);
+module.exports = nextConfig;

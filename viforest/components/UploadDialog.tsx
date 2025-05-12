@@ -45,7 +45,7 @@ export function UploadDialog({
     let completed = 0;
 
     for (const file of files) {
-      const success = await uploadFile(activeDevice.ip, file, appType, folderId);
+      const success = await uploadFile(activeDevice.ip, file, appType as string, folderId);
 
       completed++;
       setProgress(Math.round((completed / files.length) * 100));

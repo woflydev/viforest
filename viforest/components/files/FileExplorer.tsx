@@ -172,7 +172,7 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
             <span className="flex items-center gap-1">
               <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={refreshCurrentFolder} disabled={!activeDevice?.isConnected || loading}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /></Button></TooltipTrigger><TooltipContent>Refresh</TooltipContent></Tooltip>
               <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={handleSavePath} disabled={!activeDevice?.isConnected || loading || !currentFolder?.id}><Bookmark className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>Save Path</TooltipContent></Tooltip>
-              <UploadButton activeDevice={activeDevice} currentFolderId={currentFolder.id} appType={currentFolder.appType} onUploadComplete={refreshCurrentFolder} />
+              <UploadButton activeDevice={activeDevice} currentFolderId={currentFolder.id as string} appType={currentFolder.appType} onUploadComplete={refreshCurrentFolder} />
             </span>
           </CardTitle>
           <CardDescription className="text-xs text-muted-foreground mt-1">
