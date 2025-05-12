@@ -1,32 +1,24 @@
 'use client';
 
-import { DeviceConnectionManager } from '@/components/connection/DeviceConnectionManager';
+import React from "react";
 import { FileExplorer } from '@/components/files/FileExplorer';
-import { StorageIndicator } from '@/components/storage/StorageIndicator';
 import { useDeviceConnections } from '@/hooks/useDeviceConnections';
 
 export default function Home() {
   const { activeDevice } = useDeviceConnections();
-  
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-3 flex items-center">
-          <h1 className="text-xl font-semibold">viforest</h1>
+    <div className="min-h-screen min-w-screen items-center">
+      <main className="flex-1 flex flex-col items-center">
+        <div className="flex flex-col items-center py-8 bg-background">
+          <span className="mt-10 pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-black to-gray-300/80 bg-clip-text text-center text-6xl md:text-7xl lg:text-8xl font-extrabold leading-none text-transparent dark:from-white dark:to-slate-900/10 drop-shadow">
+            viforest
+          </span>
+          <span className="mt-2 text-muted-foreground text-sm tracking-wide">
+            An open-source, intuitive UI for managing files on the Viwoods AIPaper.
+          </span>
         </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 space-y-6">
-            <DeviceConnectionManager />
-            <StorageIndicator activeDevice={activeDevice} />
-          </div>
-          
-          <div className="md:col-span-2 h-[calc(100vh-180px)]">
-            <FileExplorer activeDevice={activeDevice} />
-          </div>
-        </div>
+        <FileExplorer activeDevice={activeDevice} />
       </main>
     </div>
   );

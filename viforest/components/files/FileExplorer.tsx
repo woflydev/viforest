@@ -12,8 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import {
-  Folder, ArrowUp, RefreshCw, Home, Loader2, Bookmark, X,
-  Pin
+  Folder, ArrowUp, RefreshCw, Home, Loader2, Bookmark, X, Pin
 } from 'lucide-react';
 import {
   Breadcrumb,
@@ -117,8 +116,8 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-background">
-      <Card className="flex flex-col h-full min-h-0 border-none shadow-none">
+    <div className="items-center justify-center w-full max-w-xl">      
+      <Card className="w-full min-w-[350px] max-w-xl h-[80vh] max-h-[600px] flex flex-col shadow-xl border rounded-xl bg-background">
         <CardHeader className="pb-2 border-b">
           <CardTitle className="flex items-center justify-between text-base font-semibold">
             <span className="flex items-center gap-2">
@@ -195,63 +194,61 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
 
         {/* Saved Paths Bar */}
         {hydrated && mergedSavedPaths.length > 0 && (
-        <div className="px-4 py-2 border-b bg-muted">
-          <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted-foreground/30 scrollbar-track-transparent">
-            {mergedSavedPaths.map((path, index) => (
-              <Tooltip key={index}>
-                <TooltipTrigger asChild>
-                  <div
-                    className={`flex-shrink-0 rounded transition-all ${
-                      hoveredPathIndex === index
-                        ? 'ring-2 ring-primary bg-primary/10'
-                        : 'bg-background'
-                    }`}
-                    onDragOver={e => { e.preventDefault(); setHoveredPathIndex(index); }}
-                    onDragEnter={e => { e.preventDefault(); setHoveredPathIndex(index); }}
-                    onDragLeave={() => setHoveredPathIndex(null)}
-                    onDrop={e => {
-                      e.preventDefault();
-                      setHoveredPathIndex(null);
-                      handleDropOnPath(e, path);
-                    }}
-                  >
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-all relative w-32 justify-start ${
-                        hoveredPathIndex === index ? 'border-primary border-2 bg-primary/10' : ''
+          <div className="px-4 py-2 border-b bg-muted">
+            <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted-foreground/30 scrollbar-track-transparent">
+              {mergedSavedPaths.map((path, index) => (
+                <Tooltip key={index}>
+                  <TooltipTrigger asChild>
+                    <div
+                      className={`flex-shrink-0 rounded transition-all ${
+                        hoveredPathIndex === index
+                          ? 'ring-2 ring-primary bg-primary/10'
+                          : 'bg-background'
                       }`}
-                      onClick={() => {
-                        // Instead of navigateToFolder, use navigateToBreadcrumb or a custom handler
-                        // that can handle folderId/appType directly
-                        navigateToFolder({ id: path.folderId, isDirectory: true, name: path.name, appType: path.appType });
+                      onDragOver={e => { e.preventDefault(); setHoveredPathIndex(index); }}
+                      onDragEnter={e => { e.preventDefault(); setHoveredPathIndex(index); }}
+                      onDragLeave={() => setHoveredPathIndex(null)}
+                      onDrop={e => {
+                        e.preventDefault();
+                        setHoveredPathIndex(null);
+                        handleDropOnPath(e, path);
                       }}
                     >
-                      <Pin className="h-3 w-3 text-primary mr-1" />
-                      <Folder className="h-4 w-4 mr-1" />
-                      <span className="truncate">{path.name}</span>
-                      {index >= defaultSavedPaths.length && (
-                        <X
-                          className="h-3 w-3 ml-1 cursor-pointer opacity-60 hover:opacity-100"
-                          onClick={e => {
-                            e.stopPropagation();
-                            deleteSavedPath(index - defaultSavedPaths.length);
-                          }}
-                        />
-                      )}
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  📌 Pinned folder.<br />
-                  Click to open.<br />
-                  Drag files here to upload.
-                </TooltipContent>
-              </Tooltip>
-            ))}
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-all relative w-32 justify-start ${
+                          hoveredPathIndex === index ? 'border-primary border-2 bg-primary/10' : ''
+                        }`}
+                        onClick={() => {
+                          navigateToFolder({ id: path.folderId, isDirectory: true, name: path.name, appType: path.appType });
+                        }}
+                      >
+                        <Pin className="h-3 w-3 text-primary mr-1" />
+                        <Folder className="h-4 w-4 mr-1" />
+                        <span className="truncate">{path.name}</span>
+                        {index >= defaultSavedPaths.length && (
+                          <X
+                            className="h-3 w-3 ml-1 cursor-pointer opacity-60 hover:opacity-100"
+                            onClick={e => {
+                              e.stopPropagation();
+                              deleteSavedPath(index - defaultSavedPaths.length);
+                            }}
+                          />
+                        )}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    📌 Pinned folder.<br />
+                    Click to open.<br />
+                    Drag files here to upload.
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* Breadcrumbs */}
         <div className="px-4 py-2 bg-background border-b">
