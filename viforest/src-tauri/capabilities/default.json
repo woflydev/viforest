@@ -7,11 +7,12 @@
   ],
   "permissions": [
     "core:default",
+    "http:default",
     {
       "identifier": "http:default",
-      "allow": [{
-           "url": "http://*:*"
-        }]
+      "allow": [
+      { "url": "http://*:*" }
+      ]
     }
   ]
 }

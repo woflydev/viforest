@@ -10,12 +10,12 @@ const getDeviceApiUrl = (ip: string, path: string): string =>
 export async function testConnection(ip: string): Promise<boolean> {
   const url = getDeviceApiUrl(ip, '/getCurrentCapacity');
   try {
-    const response = await tauriFetch(url, { method: 'GET' });
+    const response = await tfetch(url);
     const data = await response.json();
-    console.log('[Tauri API] Connection test response:', data.code);
+    console.log('[handshake]', data.code);
     return !!(response.ok && data && data.code === 200);
   } catch (error) {
-    console.error(`[Tauri API] Connection test failed for ${ip}:`, error);
+    console.error(`[handshake] failed for ${ip}:`, error);
     return false;
   }
 }
@@ -23,14 +23,14 @@ export async function testConnection(ip: string): Promise<boolean> {
 export async function getStorageCapacity(ip: string): Promise<DeviceCapacity | null> {
   const url = getDeviceApiUrl(ip, '/getCurrentCapacity');
   try {
-    const response = await tauriFetch(url, { method: 'GET' });
+    const response = await tfetch(url);
     const data = await response.json();
     if (response.ok && data && data.code === 200) {
       return data;
     }
     return null;
   } catch (error) {
-    console.error(`[Tauri API] Error fetching storage capacity for ${ip}:`, error);
+    console.error(`[storage] Error fetching storage capacity for ${ip}:`, error);
     return null;
   }
 }
@@ -47,7 +47,7 @@ export async function getFileList(
   const url = getDeviceApiUrl(ip, path);
 
   try {
-    const response = await tauriFetch(url, { method: 'GET' });
+    const response = await tfetch(url, { method: 'GET' });
     const data = await response.json();
     if (response.ok && data && data.code === 200) {
       return data.data.map((item: any) => ({
@@ -61,7 +61,7 @@ export async function getFileList(
     }
     return [];
   } catch (error) {
-    console.error(`[Tauri API] Error fetching file list for ${ip}:`, error);
+    console.error(`[files] Error fetching file list for ${ip}:`, error);
     return [];
   }
 }
@@ -111,14 +111,14 @@ export async function uploadFile(
     form.append('file', chunkBlob, `chunk_${chunkIndex}_${file.name}`);
 
     try {
-      const response = await tauriFetch(url, {
+      const response = await tfetch(url, {
         method: 'POST',
         body: form,
       });
       const data = await response.json();
       if (!response.ok || !data || data.code !== 200) {
         console.error(
-          `[Tauri API] Chunk ${chunkIndex} upload failed for ${file.name}.`,
+          `[upload] Chunk ${chunkIndex} upload failed for ${file.name}.`,
           'Status:',
           response.status,
           'Response:',
@@ -127,7 +127,7 @@ export async function uploadFile(
         return false;
       }
     } catch (error) {
-      console.error(`[Tauri API] Error uploading chunk ${chunkIndex} for ${file.name}:`, error);
+      console.error(`[upload] Error uploading chunk ${chunkIndex} for ${file.name}:`, error);
       return false;
     }
   }
@@ -137,7 +137,7 @@ export async function uploadFile(
 export async function downloadFile(ip: string, fileItem: FileItem): Promise<boolean> {
   const url = getDeviceApiUrl(ip, `/download?filePath=${encodeURIComponent(fileItem.id)}`);
   try {
-    const response = await tauriFetch(url, { method: 'GET' });
+    const response = await tfetch(url, { method: 'GET' });
     const arrayBuffer = await response.arrayBuffer();
     const blob = new Blob([arrayBuffer], {
       type: fileItem.fileFormat || 'application/octet-stream',
@@ -152,7 +152,24 @@ export async function downloadFile(ip: string, fileItem: FileItem): Promise<bool
     URL.revokeObjectURL(objectUrl);
     return true;
   } catch (error) {
-    console.error(`[Tauri API] Error downloading ${fileItem.fileName}:`, error);
+    console.error(`[download] Error downloading ${fileItem.fileName}:`, error);
     return false;
   }
+}
+
+async function tfetch(url:string, options = {}) {
+  const { timeout = 2000 } = options;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  console.log("[fetch] URL:", url);
+
+  const response = await tauriFetch(url, {
+    ...options,
+    signal: controller.signal
+  });
+  clearTimeout(timer);
+
+  return response;
 }
