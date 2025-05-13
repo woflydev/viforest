@@ -157,7 +157,10 @@ export async function downloadFile(ip: string, fileItem: FileItem): Promise<bool
   }
 }
 
-async function tfetch(url:string, options = {}) {
+async function tfetch(
+  url: string,
+  options: { timeout?: number; [key: string]: any } = {}
+) {
   const { timeout = 2000 } = options;
 
   const controller = new AbortController();

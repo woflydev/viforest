@@ -16,15 +16,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* Only include this meta tag when not running in a Capacitor app */}
-      {typeof window !== 'undefined' && 
-       // @ts-ignore - Capacitor adds this to window
-       !window?.Capacitor?.isNativePlatform() && (
-        <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
-      )}
       <body className={inter.className + " min-h-screen bg-background"}>
         <Providers>
-          <DragProvider> {/* Wrap with DragProvider */}
+          <DragProvider>
             <div className="flex flex-col min-h-screen">
               <main className="flex-1">{children}</main>
               <Navbar />

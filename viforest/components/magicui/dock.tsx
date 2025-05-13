@@ -65,6 +65,8 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
         ref={ref}
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
+        style={{ backgroundColor: "rgba(0,0,0,0)" }}
+        whileHover={{ backgroundColor: "rgba(0,0,0,0.02)" }}
         {...props}
         className={cn(dockVariants({ className }), {
           "items-start": direction === "top",

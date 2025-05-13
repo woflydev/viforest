@@ -26,8 +26,10 @@ export function StorageIndicator({ activeDevice, minimalist }: StorageIndicatorP
       setError(null);
       try {
         const result = await getStorageCapacity(activeDevice.ip);
+        // @ts-ignore
         if (result && result.code === 200) {
-          setCapacity(result.data);
+          // @ts-ignore
+          setCapacity(result.data as unknown as DeviceCapacity);
         } else {
           setError('Failed to fetch storage capacity');
         }
