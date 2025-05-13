@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 import { Providers } from './providers';
 import { Navbar } from '@/components/Navbar';
 import React from 'react';
-import { DragProvider } from '@/contexts/DragContext'; // Adjust path as needed
+import { DragProvider } from '@/contexts/DragContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,7 +16,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+      {/* Only include this meta tag when not running in a Capacitor app */}
+      {typeof window !== 'undefined' && 
+       // @ts-ignore - Capacitor adds this to window
+       !window?.Capacitor?.isNativePlatform() && (
+        <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+      )}
       <body className={inter.className + " min-h-screen bg-background"}>
         <Providers>
           <DragProvider> {/* Wrap with DragProvider */}

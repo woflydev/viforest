@@ -135,3 +135,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .DS_Store
+
+pnpm-lock.yaml
+*/pnpm-lock.yaml

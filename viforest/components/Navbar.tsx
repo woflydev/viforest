@@ -5,7 +5,7 @@ import { Dock, DockIcon } from '@/components/magicui/dock';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { buttonVariants } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
-import { HomeIcon, Info, Settings2Icon } from 'lucide-react';
+import { HomeIcon, Info, LucideRefreshCcw, RefreshCcw, RefreshCcwDot, RefreshCw, RefreshCwIcon, RefreshCwOff, Settings2Icon } from 'lucide-react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DeviceConnectionManager } from '@/components/connection/DeviceConnectionManager';
 import { StorageIndicator } from '@/components/storage/StorageIndicator';
@@ -45,7 +45,7 @@ export function Navbar() {
                 onClick={() => window.location.href = "/"}
                 type="button"
               >
-                <HomeIcon className="size-5" />
+                <RefreshCcw className="size-5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>

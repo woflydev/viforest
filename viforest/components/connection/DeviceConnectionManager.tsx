@@ -3,15 +3,14 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useDeviceConnections } from '@/hooks/useDeviceConnections';
-import { HelpCircle, Plus, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { Plus, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { DeviceCard } from './DeviceCard';
 import { Skeleton } from '../ui/skeleton';
-import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { isElectron, isNative } from '@/utils/platform';
 
 export function DeviceConnectionManager({ minimalist }: { minimalist?: boolean }) {
   const { toast } = useToast();
@@ -136,7 +135,7 @@ export function DeviceConnectionManager({ minimalist }: { minimalist?: boolean }
         </div>
       </TooltipTrigger>
       <TooltipContent className="max-w-xs text-sm text-left">
-        <div className="font-semibold mb-1">On each network, your device's IP will be different. With viforest, you have the ability to give each network a name so that you'll remember which IP corresponds to which network. viforest automatically attempts to connect to </div>
+        <div className="font-semibold mb-1">On each network, your device&apos;s IP will be different. With viforest, you have the ability to give each network a name so that you&apos;ll remember which IP corresponds to which network. viforest automatically attempts to connect to </div>
         <ol className="list-decimal list-inside space-y-1">
           <li>On your device, open <b>Quick Access</b> &rarr; <b>WLAN Transfer</b>.</li>
           <li>Look for an address like <code>http://192.168.1.123:8090</code>.</li>
@@ -206,8 +205,18 @@ export function DeviceConnectionManager({ minimalist }: { minimalist?: boolean }
             />
           ))
         ) : (
-          <div className="text-center py-4 text-muted-foreground text-xs">
-            No devices added yet.
+          <div className="text-center py-4 text-muted-foreground">
+            <p className="text-xs">No devices added yet.</p>
+            {isNative() && (
+              <p className="text-xs mt-2">
+                Capacitor can directly connect to local network devices.
+              </p>
+            )}
+            {isElectron() && (
+              <p className="text-xs mt-2">
+                Running in Electron with direct network access.
+              </p>
+            )}
           </div>
         )}
       </div>
