@@ -32,13 +32,13 @@ export function FileTable({
       if (success) {
         toast({
           title: 'Download complete',
-          description: `Successfully downloaded ${file.name}`,
+          description: `Successfully downloaded ${file.name} to your downloads folder!`,
         });
         onFileActionComplete();
       } else {
         toast({
           title: 'Download failed',
-          description: `Failed to download ${file.name}`,
+          description: `Failed to download ${file.name}.`,
           variant: 'destructive',
         });
       }
@@ -46,7 +46,7 @@ export function FileTable({
       console.error('Download error:', error);
       toast({
         title: 'Download failed',
-        description: `An error occurred while downloading ${file.name}`,
+        description: `An unexpected error occurred while downloading ${file.name}.`,
         variant: 'destructive',
       });
     } finally {

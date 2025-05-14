@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "tauri": "tauri dev",
+    "tauri-dev": "tauri dev",
     "tauri-build": "tauri build --bundles app",
     "tauri-icons": "tauri icon ./logo.png"
   },
@@ -45,6 +45,8 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
+    "@tauri-apps/api": "^2.5.0",
+    "@tauri-apps/plugin-fs": "~2",
     "@tauri-apps/plugin-http": "~2.4.3",
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",

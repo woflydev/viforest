@@ -13,6 +13,11 @@
       "allow": [
       { "url": "http://*:*" }
       ]
+    },
+    "fs:write-all",
+    {
+      "identifier": "fs:scope",
+      "allow": [{ "path": "$DOWNLOAD/*" }]
     }
   ]
 }

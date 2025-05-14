@@ -1,4 +1,6 @@
 import { fetch as tauriFetch } from '@tauri-apps/plugin-http';
+import { writeFile } from '@tauri-apps/plugin-fs';
+import { downloadDir, join } from '@tauri-apps/api/path'; // <-- Import path functions
 import type { DeviceCapacity, FileItem } from '@/types';
 import SparkMD5 from 'spark-md5';
 
@@ -134,25 +136,113 @@ export async function uploadFile(
   return true;
 }
 
-export async function downloadFile(ip: string, fileItem: FileItem): Promise<boolean> {
-  const url = getDeviceApiUrl(ip, `/download?filePath=${encodeURIComponent(fileItem.id)}`);
+async function packageFile(ip: string, file: FileItem): Promise<string | null> {
+  const apiUrl = getDeviceApiUrl(ip, '/packageFile');
+  // Ensure all properties used here exist on your FileItem type
+  const params = new URLSearchParams({
+    appType: file.appType || 'unknown', // Provide a fallback if appType can be undefined
+    fileUrl: file.noteId || file.id,    // Use noteId if available, otherwise id
+    fileFormat: file.fileFormat || 'pdf', // Default if not specified
+    fileName: file.name,
+    folderId: file.parentId || '',
+    isFolder: String(file.isDirectory || false),
+    childFileFormat: file.fileFormat || 'pdf' // Assuming this is still needed
+  });
+
+  const fullUrl = `${apiUrl}?${params.toString()}`;
+  console.log(`[download - packageFile] Requesting: ${fullUrl}`);
+
   try {
-    const response = await tfetch(url, { method: 'GET' });
+    const response = await tfetch(fullUrl, { method: 'GET' }); // Using current tfetch
+    const data = await response.json();
+
+    if (response.ok && data && data.code === 200 && data.data) {
+      console.log(`[download - packageFile] Success, filePath: ${data.data}`);
+      return data.data; // This is the filePath string
+    }
+    console.error(`[download - packageFile] Failed. Status: ${response.status}, Message: ${data?.msg}, Data:`, data);
+    return null;
+  } catch (error) {
+    console.error(`[download - packageFile] Error for ${file.name}:`, error);
+    return null;
+  }
+}
+
+async function checkDownloadFileReady(ip: string, filePath: string): Promise<boolean> {
+  const apiUrl = getDeviceApiUrl(ip, '/checkDownloadFile');
+  const params = new URLSearchParams({ filePath });
+  const fullUrl = `${apiUrl}?${params.toString()}`;
+  // console.log(`[download - checkDownloadFileReady] Requesting: ${fullUrl}`); // Can be verbose
+
+  try {
+    const response = await tfetch(fullUrl, { method: 'GET' }); // Using current tfetch
+    const data = await response.json();
+    const isReady = response.ok && data && data.code === 200;
+    // console.log(`[download - checkDownloadFileReady] FilePath: ${filePath}, IsReady: ${isReady}, Response Code: ${data?.code}`);
+    return isReady;
+  } catch (error) {
+    console.error(`[download - checkDownloadFileReady] Error for filePath ${filePath}:`, error);
+    return false;
+  }
+}
+
+// --- Updated downloadFile function ---
+export async function downloadFile(ip: string, fileItem: FileItem): Promise<boolean> {
+  console.log(`[Tauri Download] Starting download process for ${fileItem.name}`);
+  try {
+    // 1. Package the file
+    const packagedFilePath = await packageFile(ip, fileItem);
+    if (!packagedFilePath) {
+      console.error(`[Tauri Download] Failed to package file ${fileItem.name}.`);
+      return false;
+    }
+    console.log(`[Tauri Download] File ${fileItem.name} packaged. Device Path: ${packagedFilePath}`);
+
+    // 2. Check if the file is ready for download (with polling and timeout)
+    let isReady = false;
+    const maxRetries = 15; // Increased retries
+    const retryDelay = 2000; // 2 seconds delay
+    for (let i = 0; i < maxRetries; i++) {
+      isReady = await checkDownloadFileReady(ip, packagedFilePath);
+      if (isReady) {
+        console.log(`[Tauri Download] File ${fileItem.name} is ready for download.`);
+        break;
+      }
+      console.log(`[Tauri Download] File ${fileItem.name} not ready (attempt ${i + 1}/${maxRetries}). Retrying in ${retryDelay / 1000}s...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+    }
+
+    if (!isReady) {
+      console.error(`[Tauri Download] File ${fileItem.name} was not ready for download after ${maxRetries} retries.`);
+      return false;
+    }
+
+    // 3. Download the actual file from the device
+    const downloadUrlParams = new URLSearchParams({ filePath: packagedFilePath });
+    const actualDeviceDownloadUrl = getDeviceApiUrl(ip, `/download?${downloadUrlParams.toString()}`);
+    console.log(`[Tauri Download] Fetching actual file data from: ${actualDeviceDownloadUrl}`);
+
+    const response = await tfetch(actualDeviceDownloadUrl, { method: 'GET' }); // Using current tfetch
+    if (!response.ok) {
+      console.error(`[Tauri Download] Failed to fetch file data for ${fileItem.name}. Status: ${response.status}`);
+      return false;
+    }
     const arrayBuffer = await response.arrayBuffer();
-    const blob = new Blob([arrayBuffer], {
-      type: fileItem.fileFormat || 'application/octet-stream',
-    });
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = objectUrl;
-    a.download = fileItem.fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(objectUrl);
+    console.log(`[Tauri Download] File ${fileItem.name} data fetched successfully (${arrayBuffer.byteLength} bytes).`);
+
+    // 4. Save the file to user's downloads directory using Tauri FS
+    const userDownloadsPath = await downloadDir();
+    // Sanitize filename just in case, though fileItem.name should be fine
+    const fileNameOnly = fileItem.name.replace(/[\/\\]/g, '_'); // Replace slashes with underscores
+    const destinationPath = await join(userDownloadsPath, fileNameOnly);
+    console.log(`[Tauri Download] Saving file to: ${destinationPath}`);
+
+    await writeFile(destinationPath, new Uint8Array(arrayBuffer));
+
+    console.log(`[Tauri Download] File ${fileItem.name} downloaded and saved successfully to ${destinationPath}.`);
     return true;
   } catch (error) {
-    console.error(`[download] Error downloading ${fileItem.fileName}:`, error);
+    console.error(`[Tauri Download] Overall error during download process for ${fileItem.name}:`, error);
     return false;
   }
 }
