@@ -6,6 +6,7 @@ import { downloadFile } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Download, Folder, File } from 'lucide-react';
 import { formatDate } from '@/lib/formatters';
+import { openPath, revealItemInDir } from '@tauri-apps/plugin-opener';
 
 interface FileTableProps {
   files: FileItem[];
@@ -32,7 +33,7 @@ export function FileTable({
       if (success) {
         toast({
           title: 'Download complete',
-          description: `Successfully downloaded ${file.name} to your downloads folder!`,
+          description: `Successfully saved ${file.name} to your downloads folder!`,
         });
         onFileActionComplete();
       } else {
@@ -65,9 +66,8 @@ export function FileTable({
     <div className="w-full">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className='h-[50px]'>
             <TableHead className="w-[240px]">Name</TableHead>
-            {/* Removed Size column */}
             <TableHead className="w-[120px]">Modified</TableHead>
             <TableHead className="text-right w-[60px]">Actions</TableHead>
           </TableRow>
@@ -80,7 +80,7 @@ export function FileTable({
               className={
                 file.isDirectory
                   ? 'cursor-pointer hover:bg-muted/50'
-                  : 'hover:bg-muted/20'
+                  : 'hover:bg-muted/40'
               }
             >
               <TableCell className="font-medium flex items-center gap-2">
@@ -92,7 +92,7 @@ export function FileTable({
                 <span className="truncate">{file.name}</span>
               </TableCell>
               {/* Removed Size cell */}
-              <TableCell>
+              <TableCell className='text-md'>
                 {file.modifiedDate ? formatDate(file.modifiedDate) : '-'}
               </TableCell>
               <TableCell className="text-right">

@@ -5,34 +5,26 @@ import { Dock, DockIcon } from '@/components/magicui/dock';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { buttonVariants } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
-import { HomeIcon, Info, LucideRefreshCcw, RefreshCcw, RefreshCcwDot, RefreshCw, RefreshCwIcon, RefreshCwOff, Settings2Icon } from 'lucide-react';
+import { CircleHelp, Info, RefreshCcw, Settings2Icon } from 'lucide-react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DeviceConnectionManager } from '@/components/connection/DeviceConnectionManager';
 import { StorageIndicator } from '@/components/storage/StorageIndicator';
 import { useDeviceConnections } from '@/hooks/useDeviceConnections';
 import { Skeleton } from "./ui/skeleton";
 import { AboutModal } from "./AboutModal";
+import { HelpModal } from "./HelpModal";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export function Navbar() {
   const [showModal, setShowModal] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const { activeDevice } = useDeviceConnections();
-
-  // Keyboard shortcut for settings (optional)
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.key === "s" || e.key === "d") && e.metaKey) {
-        setShowModal(true);
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
 
   return (
     <TooltipProvider>
       <Dock 
-        className="fixed bottom-20 left-0 right-0 z-50 mx-auto mb-4"
+        className=""
         iconMagnification={60} 
         direction="middle"
       >
@@ -90,6 +82,23 @@ export function Navbar() {
         <DockIcon>
           <Tooltip>
             <TooltipTrigger asChild>
+              <button
+                aria-label="About"
+                className={buttonVariants({ variant: "ghost", size: "icon" }) + " size-12 rounded-full"}
+                onClick={() => setShowHelp(true)}
+                type="button"
+              >
+                <CircleHelp className="size-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Help</p>
+            </TooltipContent>
+          </Tooltip>
+        </DockIcon>
+        <DockIcon>
+          <Tooltip>
+            <TooltipTrigger asChild>
               <ModeToggle />
             </TooltipTrigger>
             <TooltipContent>
@@ -99,9 +108,10 @@ export function Navbar() {
         </DockIcon>
       </Dock>
 
-      {/* Unified Settings Modal: Devices first, then Storage */}
+      {/* unified settings - devices then storage */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-lg w-full p-0 overflow-hidden [&>button:last-child]:hidden">
+        <DialogContent aria-describedby="Dialog for settings and device management" className="max-w-lg w-full p-0 overflow-hidden [&>button:last-child]:hidden">
+         <DialogTitle></DialogTitle>
           <div className="p-4 space-y-6">
             <div>
               <React.Suspense fallback={<Skeleton className="h-24 w-full rounded" />}>
@@ -118,6 +128,7 @@ export function Navbar() {
       </Dialog>
 
       <AboutModal open={showAbout} onOpenChange={setShowAbout} />
+      <HelpModal open={showHelp} onOpenChange={setShowHelp} />
     </TooltipProvider>
   );
 }

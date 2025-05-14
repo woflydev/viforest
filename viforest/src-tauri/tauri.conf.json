@@ -14,13 +14,13 @@
       {
         "label": "main",
         "title": "viforest",
-        "width": 1200,
-        "height": 800
+        "width": 1920,
+        "height": 1080
       }
     ],
     "security": {
       "assetProtocol": {
-          "scope": ["**", "**/*", "/**/*", "$APPDATA/**", "$RESOURCE/**"]
+          "scope": ["**", "**/*", "/**/*", "$APPDATA/**", "$RESOURCE/**", "$DOWNLOAD/**"]
       },
       "csp": null
     }

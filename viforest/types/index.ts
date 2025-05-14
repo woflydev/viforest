@@ -1,5 +1,7 @@
 // Device types
 export interface DeviceCapacity {
+  data(data: any): unknown;
+  code: number;
   current: number;
   currentStr: string;
   free: number;

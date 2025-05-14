@@ -13,13 +13,17 @@ export function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange
         <DialogHeader>
           <DialogTitle>About</DialogTitle>
           <DialogDescription>
-            <div className="mt-2 text-base text-foreground">
+            <div className="mt-4 text-base text-foreground">
               <p>
                 <b><i>viforest</i></b> is an open-source, intuitive UI for managing files on the Viwoods AIPaper.
               </p>
               <p className="mt-4">
-                Made by <span className="font-semibold text-indigo-500 hover:text-indigo-700 transition-colors"><Link target="_blank" href={"https://woflydev.com"}>woflydev</Link></span>.
+                Found a bug or want to request a feature? Please let me know on <a target="_blank" href="https://github.com/woflydev/viforest" className="font-semibold text-indigo-500 hover:text-indigo-700 transition-colors">GitHub</a>.
               </p>
+              <p className="mt-4">
+              <span><span className="text-xs">p.s. I'm not affiliated with Viwoods!</span></span>
+              </p>
+              
             </div>
           </DialogDescription>
         </DialogHeader>

@@ -73,7 +73,7 @@ export function UploadDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby={"Dialog for information"}>
         <DialogHeader>
           <DialogTitle>Upload Files</DialogTitle>
           <DialogDescription>

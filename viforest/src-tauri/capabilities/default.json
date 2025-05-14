@@ -11,13 +11,37 @@
     {
       "identifier": "http:default",
       "allow": [
-      { "url": "http://*:*" }
+        {
+          "url": "http://*:*"
+        }
       ]
     },
     "fs:write-all",
+    "fs:allow-open",
     {
       "identifier": "fs:scope",
-      "allow": [{ "path": "$DOWNLOAD/*" }]
+      "allow": [
+        {
+          "path": "$DOWNLOAD/*"
+        },
+        {
+          "path": "$DOWNLOAD"
+        }
+      ]
+    },
+    "opener:default",
+    "opener:allow-open-path",
+    "opener:allow-reveal-item-in-dir",
+    {
+      "identifier": "opener:allow-open-path",
+      "allow": [
+        {
+          "path": "$DOWNLOAD/*"
+        },
+        {
+          "path": "$DOWNLOAD/"
+        }
+      ]
     }
   ]
 }

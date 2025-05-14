@@ -48,8 +48,25 @@ export type SavedPath = {
 
 export function FileExplorer({ activeDevice }: FileExplorerProps) {
   const {
-    files, loading, error, currentFolder, breadcrumbs,
-    navigateToFolder, navigateToBreadcrumb, refreshCurrentFolder, navigateUp,
+    files,
+    loading,
+    error,
+    currentFolder,
+    breadcrumbs,
+    navigateToFolder,
+    navigateToBreadcrumb,
+    refreshCurrentFolder,
+    navigateUp,
+  }: {
+    files: FileItem[];
+    loading: boolean;
+    error: string | null;
+    currentFolder: any;
+    breadcrumbs: any[];
+    navigateToFolder: (folder: FileItem) => void;
+    navigateToBreadcrumb: (breadcrumb: any) => void;
+    refreshCurrentFolder: () => void;
+    navigateUp: () => void;
   } = useFileExplorer(activeDevice);
 
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
@@ -71,13 +88,11 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
     if (!currentExplorerRef) return;
 
     const handleExplorerDragOver = (e: DragEvent) => {
-      e.preventDefault(); // Make FileExplorer a valid drop zone
+      e.preventDefault();
     };
 
     const handleExplorerDrop = (e: DragEvent) => {
       e.preventDefault();
-      // Logic for dropping directly onto FileExplorer background (optional)
-      // Global drag state will be reset by DragContext
     };
 
     currentExplorerRef.addEventListener('dragover', handleExplorerDragOver);
@@ -148,17 +163,13 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
     setHoveredPathIndex(null);
   };
 
-  const explorerWidth = "w-[800px] max-w-lg";
-  // MODIFIED: Animation for Saved Paths now *only* depends on global drag state.
+  const explorerWidth = "w-full max-w-lg";
   const shouldAnimateForDrag = isDraggingFilesOverSite;
-
-  // For subtle background hover on the entire FileExplorer card, we can still use siteHovered.
   const explorerCardBgColor = siteHovered ? "rgba(0,0,0,0.02)" : "transparent";
-
 
   return (
     <div
-      className={`items-center justify-center w-full ${explorerWidth}`}
+      className={`items-center justify-center w-full ${explorerWidth} mx-20`}
       onMouseEnter={() => setSiteHovered(true)}
       onMouseLeave={() => {
         setSiteHovered(false);
@@ -175,8 +186,10 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
               <UploadButton activeDevice={activeDevice} currentFolderId={currentFolder.id as string} appType={currentFolder.appType} onUploadComplete={refreshCurrentFolder} />
             </span>
           </CardTitle>
-          <CardDescription className="text-xs text-muted-foreground mt-1">
-            {activeDevice?.isConnected ? `Browsing: ${activeDevice.name || activeDevice.ip}` : 'Connect to a device to browse files'}
+          <CardDescription className="text-muted-foreground text-xs">
+            <div className="mb-2">
+            {activeDevice?.isConnected ? `Browsing: ${activeDevice.name || activeDevice.ip}` : 'Connect to your Viwoods AIPaper to browse its files.'}
+              </div>
           </CardDescription>
         </CardHeader>
 
@@ -190,7 +203,7 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
               minHeight: shouldAnimateForDrag ? 100 : 48,
               backgroundColor: shouldAnimateForDrag ? "rgba(0,120,255,0.05)" : explorerCardBgColor,
             }}
-            className="overflow-hidden" // Keep overflow-hidden on the outer motion.div
+            className="overflow-hidden"
           >
             {!hydrated ? (
               <div className="flex gap-2 py-2"><Skeleton className="h-8 w-32 rounded" /><Skeleton className="h-8 w-32 rounded" /><Skeleton className="h-8 w-32 rounded" /></div>
@@ -198,8 +211,8 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
               <div 
                 className={`py-1 overflow-hidden ${
                   isDraggingFilesOverSite 
-                    ? 'flex flex-col items-center gap-2' // Vertical layout (already centered)
-                    : 'flex flex-row flex-wrap justify-center gap-3 py-2' // Horizontal layout with centering
+                    ? 'flex flex-col items-center gap-2' 
+                    : 'flex flex-row flex-wrap justify-center gap-3 py-2' 
                 }`}
               >
                 {mergedSavedPaths.map((path, index) => {
@@ -209,35 +222,29 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
                   const cardShouldExpand = isDraggingFilesOverSite;
                   const isCurrentlyHovered = hoveredPathIndex === index;
 
-                  // Define initial state dimensions
                   const nonExpandedWidth = isCurrentlyHovered ? 160 : 128;
                   
-                  // Only change the border color on hover, not the entire button variant
                   const currentBorderColor = (isCurrentlyHovered) 
                     ? "hsl(var(--primary))" 
                     : "hsl(var(--border))";
                     
-                  // Keep button variant consistent regardless of hover state
                   const buttonVariant = "secondary";
 
-                  // Animation variants for the different states
                   const variants = {
                     collapsed: {
                       width: nonExpandedWidth,
                       minHeight: 36,
                       boxShadow: "0 1px 3px rgba(0,0,0,0.07)",
                       borderRadius: 8,
-                      // Thicker, more visible border with better animation handling
                       borderWidth: 1.5,
                       borderColor: isCurrentlyHovered ? "hsl(var(--primary))" : "hsl(var(--border))",
                       transition: { type: "spring", stiffness: 300, damping: 26 }
                     },
                     expanded: {
-                      width: "90%", // Slightly less than 100% for visual appeal
+                      width: "90%",
                       minHeight: 72,
                       boxShadow: "0 5px 20px rgba(0,0,0,0.1)",
                       borderRadius: 12,
-                      // Thicker, more visible border with better animation handling
                       borderWidth: 2,
                       borderColor: isCurrentlyHovered ? "hsl(var(--primary))" : "hsl(var(--border))",
                       transition: { 
@@ -256,7 +263,6 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
                       animate={cardShouldExpand ? "expanded" : "collapsed"}
                       layout="position"
                       transition={{ type: "spring", stiffness: 300, damping: 26 }}
-                      // Remove 'border' class since we're animating borderWidth. Add overflow-hidden to prevent scrollbars.
                       className={`relative bg-background rounded-lg cursor-pointer flex-shrink-0 overflow-hidden`}
                       onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); if(isDraggingFilesOverSite) setHoveredPathIndex(index); }}
                       onDragEnter={(e) => { e.preventDefault(); if(isDraggingFilesOverSite) setHoveredPathIndex(index); }}
@@ -268,7 +274,6 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
                           <Button
                             variant={buttonVariant}
                             size="sm"
-                            // Add overflow-hidden to ensure no internal scrollbars
                             className={`group flex items-center gap-1.5 px-2.5 text-xs rounded-md w-full h-full justify-start overflow-hidden ${cardShouldExpand ? 'py-3 text-sm' : 'py-1.5'}`}
                             onClick={() => { setTargetFolderId(path.folderId); setTargetAppType(path.appType); savedPathFileInputRef.current?.click(); }}
                           >
@@ -321,7 +326,7 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
         </div>
 
         <CardContent className="flex-1 min-h-0 p-0 overflow-y-auto bg-background">
-          {!activeDevice?.isConnected ? <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-8"><Folder className="h-10 w-10 mb-2 opacity-50" /><p className="text-xs">Connect to a device</p></div>
+          {!activeDevice?.isConnected ? <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-8"><Folder className="h-10 w-10 mb-2 opacity-50" /><p className="text-xs">Not Connected</p></div>
             : loading ? <div className="flex flex-col gap-1 p-2">{[...Array(10)].map((_, i) => <Skeleton key={i} className="h-9 w-full rounded" />)}</div>
             : error ? <div className="flex flex-col items-center justify-center h-full text-destructive py-8 px-4 text-center"><p className="text-sm font-medium">Error: {error}</p><Button variant="outline" size="sm" onClick={refreshCurrentFolder} className="mt-3">Try Again</Button></div>
             : files.length === 0 ? <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-8"><Folder className="h-8 w-8 mb-2 opacity-50" /><p className="text-xs">Folder is empty</p></div>
@@ -339,13 +344,13 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
           setIsDialogOpen(open);
           if (!open) {
             setHoveredPathIndex(null);
-            resetDragState(); // Explicitly reset drag state when dialog is closed
+            resetDragState();
           }
         }}
         onUploadComplete={() => {
           refreshCurrentFolder();
           setFilesToUpload([]);
-          resetDragState(); // Also reset when upload completes
+          resetDragState();
         }}
       />
     </div>
