@@ -42,6 +42,7 @@
           "path": "$DOWNLOAD/"
         }
       ]
-    }
+    },
+    "clipboard:read-all"
   ]
 }

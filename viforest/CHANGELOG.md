@@ -5,6 +5,8 @@
 - [x] Fix file explorer not populating on connection
 - [x] Fix weird EOF error on first startup
 - [x] Support revealing files on download & opening links in modals
+- [x] Support for pasting pages directly from OneNote and auto-converting to PDF
+- [x] Support renaming files on upload
 
 # Low Priority:
 - [ ] Fix logo (it's so goofy)
@@ -13,7 +15,7 @@
 - [ ] Fix device connection flash when clicking into the dialog
 
 # Planned Features:
+- [ ] Improve OneNote PDF conversion
 - [ ] Full file tree traversal on initial load to eliminate loading state when clicking between folders
 - [ ] Option to choose file format other than PDF for download
-- [ ] Support for pasting pages directly from OneNote and auto-converting to PDF
 - [ ] Native file explorer integration (right click to send)

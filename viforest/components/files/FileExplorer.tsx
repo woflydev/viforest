@@ -1,5 +1,7 @@
 'use client';
 
+import clipboard from "tauri-plugin-clipboard-api";
+import { generatePdfFromHtml } from '@/lib/pdfUtils'; // Import the new utility
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -30,6 +32,9 @@ import { useFileExplorer } from '@/hooks/useFileExplorer';
 import { DeviceConnection, FileItem } from '@/types';
 import { defaultSavedPaths } from '@/config/savedPaths.config';
 import { useGlobalDragState } from '@/contexts/DragContext';
+import { uploadFile } from '@/lib/api';
+import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 function Skeleton({ className }: { className?: string }) {
   return <div className={`bg-muted-foreground/10 rounded animate-pulse ${className || ''}`} />;
@@ -68,6 +73,8 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
     refreshCurrentFolder: () => void;
     navigateUp: () => void;
   } = useFileExplorer(activeDevice);
+
+  const { toast } = useToast();
 
   const [hoveredPathIndex, setHoveredPathIndex] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -162,6 +169,53 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
     }
     setHoveredPathIndex(null);
   };
+
+  useEffect(() => {
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'v') {
+        if (!activeDevice?.ip || !currentFolder?.id) {
+          console.log('Paste ignored: No active device or current folder/folder ID.');
+          return;
+        }
+
+        console.log('Paste shortcut detected. Attempting to read HTML content from clipboard.');
+        try {
+          const clipboardHtml = await clipboard.readHtml();
+
+          if (clipboardHtml && clipboardHtml.trim() !== "") {
+            console.log('HTML content found on clipboard. Attempting PDF conversion with html2pdf.js...');
+            console.log('Clipboard HTML snippet:', clipboardHtml.substring(0, 500));
+            const pdfFileName = `viforest_${Date.now()}.pdf`;
+            const generatedPdfFile = await generatePdfFromHtml(clipboardHtml, pdfFileName);
+
+            if (generatedPdfFile) {
+              console.log(`PDF generated: ${generatedPdfFile.name}. Preparing for upload to folderId: ${currentFolder.id}, appType: ${currentFolder.appType}`);
+              setFilesToUpload([generatedPdfFile]);
+              setTargetFolderId(currentFolder.id);
+              setTargetAppType(currentFolder.appType);
+              setIsDialogOpen(true);
+            } else {
+              console.error('PDF generation failed using html2pdf.js.');
+            }
+          } else {
+            console.log('No HTML content found on clipboard, or clipboard is empty.');
+          }
+        } catch (error) {
+          console.error('Failed to read from clipboard or process pasted content:', error);
+          toast({
+            title: "Error",
+            description: "Failed to read from clipboard or process pasted content.",
+            variant: "destructive",
+          })
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeDevice, currentFolder, refreshCurrentFolder, setFilesToUpload, setTargetFolderId, setTargetAppType, setIsDialogOpen]);
 
   const explorerWidth = "w-full max-w-lg";
   const shouldAnimateForDrag = isDraggingFilesOverSite;

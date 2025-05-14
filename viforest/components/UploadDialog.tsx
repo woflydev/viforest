@@ -6,7 +6,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { X } from 'lucide-react';
 import { uploadFile } from '@/lib/api';
 import { DeviceConnection } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -33,10 +32,31 @@ export function UploadDialog({
   const { toast } = useToast();
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  // Store only the base names (without extension)
+  const [baseNames, setBaseNames] = useState<string[]>([]);
+
+  // Helper to split filename into base and extension
+  const splitName = (filename: string) => {
+    const lastDot = filename.lastIndexOf('.');
+    if (lastDot === -1) return { base: filename, ext: '' };
+    return {
+      base: filename.slice(0, lastDot),
+      ext: filename.slice(lastDot),
+    };
+  };
 
   useEffect(() => {
     setProgress(0);
+    setBaseNames(files.map((file) => splitName(file.name).base));
   }, [files]);
+
+  const handleBaseNameChange = (index: number, newBase: string) => {
+    setBaseNames((prev) => {
+      const updated = [...prev];
+      updated[index] = newBase;
+      return updated;
+    });
+  };
 
   const handleUpload = async () => {
     if (!activeDevice || files.length === 0) return;
@@ -44,8 +64,18 @@ export function UploadDialog({
     setIsUploading(true);
     let completed = 0;
 
-    for (const file of files) {
-      const success = await uploadFile(activeDevice.ip, file, appType as string, folderId);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const { ext } = splitName(file.name);
+      const newName = baseNames[i] + ext;
+
+      // Create a new File object with the new name if changed
+      const uploadFileObj =
+        newName && newName !== file.name
+          ? new File([file], newName, { type: file.type })
+          : file;
+
+      const success = await uploadFile(activeDevice.ip, uploadFileObj, appType as string, folderId);
 
       completed++;
       setProgress(Math.round((completed / files.length) * 100));
@@ -53,7 +83,7 @@ export function UploadDialog({
       if (!success) {
         toast({
           title: 'Upload failed',
-          description: `Failed to upload ${file.name}`,
+          description: `Failed to upload ${newName}`,
           variant: 'destructive',
         });
       }
@@ -73,7 +103,7 @@ export function UploadDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={"Dialog for information"}>
+      <DialogContent aria-describedby="Dialog for information">
         <DialogHeader>
           <DialogTitle>Upload Files</DialogTitle>
           <DialogDescription>
@@ -82,19 +112,31 @@ export function UploadDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4 max-h-64 overflow-y-auto">
-          {files.map((file, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between p-2 border rounded"
-            >
-              <div className="truncate">
-                <span className="text-sm font-medium">{file.name}</span>
-                <span className="text-xs text-muted-foreground ml-2">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                </span>
+          {files.map((file, i) => {
+            const { base, ext } = splitName(file.name);
+            return (
+              <div
+                key={i}
+                className="flex items-center justify-between p-2 border rounded"
+              >
+                <div className="flex items-center gap-2 w-full">
+                  {/* shadcn Input for base name */}
+                  <input
+                    type="text"
+                    value={baseNames[i] || ''}
+                    onChange={(e) => handleBaseNameChange(i, e.target.value)}
+                    disabled={isUploading}
+                    className="w-full text-sm font-medium border rounded px-2 py-1 flex-1 focus:outline-none focus:ring-0"
+                    aria-label={`Base filename for ${file.name}`}
+                  />
+                  <span className="text-sm select-none">{ext}</span>
+                  <span className="text-xs text-muted-foreground ml-2">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {isUploading && (
