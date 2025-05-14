@@ -183,25 +183,24 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
           const clipboardHtml = await clipboard.readHtml();
 
           if (clipboardHtml && clipboardHtml.trim() !== "") {
-            console.log('HTML content found on clipboard. Attempting PDF conversion with html2pdf.js...');
-            console.log('Clipboard HTML snippet:', clipboardHtml.substring(0, 500));
+            console.log('[paste] clipboard HTML: ', clipboardHtml.substring(0, 500));
             const pdfFileName = `viforest_${Date.now()}.pdf`;
             const generatedPdfFile = await generatePdfFromHtml(clipboardHtml, pdfFileName);
 
             if (generatedPdfFile) {
-              console.log(`PDF generated: ${generatedPdfFile.name}. Preparing for upload to folderId: ${currentFolder.id}, appType: ${currentFolder.appType}`);
+              console.log(`[paste] PDF: ${generatedPdfFile.name}. folderID: ${currentFolder.id}, appType: ${currentFolder.appType}`);
               setFilesToUpload([generatedPdfFile]);
               setTargetFolderId(currentFolder.id);
               setTargetAppType(currentFolder.appType);
               setIsDialogOpen(true);
             } else {
-              console.error('PDF generation failed using html2pdf.js.');
+              console.error('[paste] PDF generation failed.');
             }
           } else {
-            console.log('No HTML content found on clipboard, or clipboard is empty.');
+            console.log('[paste] No HTML found in clipboard.');
           }
         } catch (error) {
-          console.error('Failed to read from clipboard or process pasted content:', error);
+          console.error('[paste] Failed to read: ', error);
           toast({
             title: "Error",
             description: "Failed to read from clipboard or process pasted content.",
