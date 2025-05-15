@@ -26,7 +26,7 @@
 
 > [!WARNING]  
 > **_viforest_ is still under active development**. <br />
-> Please check the [changelog](https://github.com/woflydev/viforest/blob/main/viforest/CHANGELOG.md) for our roadmap for future features and changes.
+> Please check the [changelog](https://github.com/woflydev/viforest/blob/main/viforest/CHANGELOG.md) for the roadmap for future features and changes.
 >
 > **I am not affiliated with Viwoods in any way. This is an educational project that uses publicly accessible APIs.**
 
