@@ -8,6 +8,7 @@
 - [x] Support for pasting pages directly from OneNote and auto-converting to PDF
 - [x] Support renaming files on upload
 - [ ] Fix not refreshing when adding -> connecting device
+- [ ] Add documentation for OneNote paste in info dialog
 
 # Low Priority:
 - [x] Fix logo (it's so goofy)
