@@ -19,7 +19,12 @@
 	Linux
     <br />
     <br />
-    <b>Tested on </b> <br/>
+    <b>Not Supported </b> <br/>
+	Android ·
+    iOS
+    <br />
+    <br />
+    <b>Tested On </b> <br/>
 	MacOS
   </p>
 <br />
@@ -29,6 +34,13 @@
 > Please check the [changelog](https://github.com/woflydev/viforest/blob/main/viforest/CHANGELOG.md) for the roadmap for future features and changes.
 >
 > **I am not affiliated with Viwoods in any way. This is an educational project that uses publicly accessible APIs.**
+
+> [!CAUTION]
+> **Installation of viforest (especially on MacOS) requires you to do some extra steps.**
+>
+> MacOS: Because I don't have a MacOS developer license, I can't sign the app. MacOS will say something along the lines of "this app is broken and cannot be opened" when you try to run it. You will need to allow the app to run by going to **System Preferences > Security & Privacy > General**, scrolling down, and clicking **"Open Anyway"** when prompted. If you don't see this option, right click the app in your **Applications** folder and select **"Open"**, then check again.
+>
+> Windows: Likewise, I haven't signed the application for Windows, so your system will likely pop up with a SmartScreen warning. You can ignore this warning and click **"Run Anyway"**.
 
 <p align="center">
     <picture>
@@ -70,14 +82,17 @@ Almost all functionality from the original Viwoods WLAN Transfer interface is fu
 # FAQ
 1. Is **_viforest_** an official app?
    - No, no, and no. If you run into issues, please don't bother the Viwoods team about it! Instead, create an [issue](https://github.com/woflydev/viforest/issues) in this repository.
-2. Is **_viforest_** safe?
+2. Will there be an Android or iOS version?
+    - As much as I'd like to bring **_viforest_** to mobile, I don't have the time or resources to do so (the Apple Developer License is rather expensive). I will consider Android if I find the time.
+3. Is **_viforest_** safe?
    - This project is open source. Anyone can read the code, so feel free to do so! If it makes you feel better, **_viforest_** only uses official Viwoods APIs (i.e., when interacting with files on your device, it goes through all the same channels as the official client). All the extra features **_viforest_** has are client-side, so it shouldn't void your warranty (I'm not a lawyer, this is an opinion).
-3. Can I ask for a feature?
+4. Can I ask for a feature?
    - I primarily made **_viforest_** to fulfill my own workflow needs, so I have a list of future features I'm planning on implementing. But feel free to open an issue or fork the repository to make your own changes! You can check the [CHANGELOG.md](https://github.com/woflydev/viforest/blob/main/viforest/CHANGELOG.md) file for the current roadmap.
-4. I want to support this app, what can I do?
+5. I want to support this app, what can I do?
    - Report any bugs you find! I'm very busy but will try and address them as soon as I can.
-5. Your code is disgusting, can I fix it?
+6. Your code is disgusting, can I fix it?
    - Sure lol
+
 
 # Changelog & Planned Features
 
