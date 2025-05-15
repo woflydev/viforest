@@ -26,6 +26,7 @@ export function StorageIndicator({ activeDevice, minimalist }: StorageIndicatorP
       setError(null);
       try {
         const result = await getStorageCapacity(activeDevice.ip);
+        // ah yes I love type safety
         // @ts-ignore
         if (result && result.code === 200) {
           // @ts-ignore

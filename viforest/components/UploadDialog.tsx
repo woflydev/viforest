@@ -32,10 +32,8 @@ export function UploadDialog({
   const { toast } = useToast();
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  // Store only the base names (without extension)
   const [baseNames, setBaseNames] = useState<string[]>([]);
 
-  // Helper to split filename into base and extension
   const splitName = (filename: string) => {
     const lastDot = filename.lastIndexOf('.');
     if (lastDot === -1) return { base: filename, ext: '' };
@@ -69,7 +67,6 @@ export function UploadDialog({
       const { ext } = splitName(file.name);
       const newName = baseNames[i] + ext;
 
-      // Create a new File object with the new name if changed
       const uploadFileObj =
         newName && newName !== file.name
           ? new File([file], newName, { type: file.type })

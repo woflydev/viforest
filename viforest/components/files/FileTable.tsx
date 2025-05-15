@@ -54,7 +54,7 @@ export function FileTable({
     }
   };
 
-  // Sort files: directories first, then alphabetically
+  // sort files: directories first, then alphabetically
   const sortedFiles = [...files].sort((a, b) => {
     if (a.isDirectory && !b.isDirectory) return -1;
     if (!a.isDirectory && b.isDirectory) return 1;

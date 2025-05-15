@@ -1,7 +1,6 @@
 export function getFileIcon(filename: string): string {
   const extension = filename.split('.').pop()?.toLowerCase() || '';
   
-  // Return appropriate icon based on file extension
   switch (extension) {
     case 'pdf':
       return 'file-text';

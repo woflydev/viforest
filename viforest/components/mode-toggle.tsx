@@ -19,11 +19,10 @@ export const ModeToggle = React.forwardRef<HTMLButtonElement, React.HTMLAttribut
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          {/* Apply the forwarded ref to the button element */}
           <button
             ref={ref}
             className={buttonVariants({ variant: "ghost", size: "icon" }) + " size-12 rounded-full"}
-            {...props} // Spread any other props
+            {...props}
           >
             <SunIcon className="rotate-0 transition-all dark:-rotate-90 dark:scale-0" />
             <MoonIcon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />

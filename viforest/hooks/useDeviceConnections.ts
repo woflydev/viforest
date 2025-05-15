@@ -32,7 +32,6 @@ export function useDeviceConnections() {
           if (lastConnectedIp) {
             targetConnection = parsed.find(c => c.ip === lastConnectedIp);
           }
-          // Fallback: use first device if no lastConnectedIp
           if (!targetConnection) {
             targetConnection = parsed[0];
           }
@@ -58,8 +57,6 @@ export function useDeviceConnections() {
             }
           }
         }
-
-        // If no auto-connect, just finish loading
       } catch (error) {
         console.error('Failed to load connections:', error);
       } finally {
@@ -110,7 +107,6 @@ export function useDeviceConnections() {
     }
   };
 
-  // Connect to a device
   const connectToDevice = async (ip: string) => {
     const isConnected = await testConnection(ip);
 
@@ -138,7 +134,6 @@ export function useDeviceConnections() {
     }
   };
 
-  // Disconnect from active device
   const disconnectDevice = () => {
     setConnections(prev =>
       prev.map(c => ({

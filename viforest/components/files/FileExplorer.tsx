@@ -1,7 +1,7 @@
 'use client';
 
 import clipboard from "tauri-plugin-clipboard-api";
-import { generatePdfFromHtml } from '@/lib/pdfUtils'; // Import the new utility
+import { generatePdfFromHtml } from '@/lib/pdfUtils';
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import {
-  Folder, ArrowUp, RefreshCw, Home, Bookmark, X, Pin
+  Folder, RefreshCw, Bookmark, X, Pin
 } from 'lucide-react';
 import {
   Breadcrumb,
@@ -84,7 +84,7 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
   const [userSavedPaths, setUserSavedPaths] = useState<SavedPath[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
-  const [siteHovered, setSiteHovered] = useState(false); // Still useful for other hover effects if needed
+  const [siteHovered, setSiteHovered] = useState(false);
   const explorerRef = useRef<HTMLDivElement>(null);
   const { isDraggingFilesOverSite, resetDragState } = useGlobalDragState();
 
@@ -302,7 +302,7 @@ export function FileExplorer({ activeDevice }: FileExplorerProps) {
                         type: "spring", 
                         stiffness: 300, 
                         damping: 26,
-                        width: { type: "spring", stiffness: 100, damping: 20 } // Separate animation config for width
+                        width: { type: "spring", stiffness: 100, damping: 20 }
                       }
                     }
                   };

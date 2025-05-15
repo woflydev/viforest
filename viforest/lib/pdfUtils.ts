@@ -50,7 +50,6 @@ function extractSupportedContent(html: string): string {
     return null;
   }
 
-  // Clean all children of the root temp div
   const cleanedRoot = document.createElement('div');
   for (const child of Array.from(temp.childNodes)) {
     const cleaned = clean(child);

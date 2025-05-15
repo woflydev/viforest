@@ -182,7 +182,6 @@ async function checkDownloadFileReady(ip: string, filePath: string): Promise<boo
   }
 }
 
-// --- Updated downloadFile function ---
 export async function downloadFile(ip: string, fileItem: FileItem): Promise<boolean> {
   console.log(`[download] starting download for ${fileItem.name}`);
   try {
@@ -195,7 +194,7 @@ export async function downloadFile(ip: string, fileItem: FileItem): Promise<bool
     console.log(`[download] file packaged!`);
 
     let isReady = false;
-    const maxRetries = 15; // Increased retries
+    const maxRetries = 15;
     const retryDelay = 2000; // 2 seconds delay
     for (let i = 0; i < maxRetries; i++) {
       isReady = await checkDownloadFileReady(ip, packagedFilePath);

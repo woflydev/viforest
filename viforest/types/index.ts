@@ -1,4 +1,3 @@
-// Device types
 export interface DeviceCapacity {
   data(data: any): unknown;
   code: number;
@@ -23,7 +22,6 @@ export interface DeviceConnection {
   lastConnected?: Date;
 }
 
-// File types
 export interface FileParentFolder {
   appType: string;
   encryption: boolean;
@@ -50,7 +48,6 @@ export interface FileItem {
   size: number;
   updateTime: number;
   fileFormat: string;
-  // UI-specific fields
   id: string;
   name: string;
   isDirectory: boolean;
@@ -64,13 +61,11 @@ export interface FileListResponse {
   msg: string;
 }
 
-// API types
 export interface ApiError {
   code: number;
   message: string;
 }
 
-// UI types
 export interface BreadcrumbItem {
   id?: string;
   name: string;
