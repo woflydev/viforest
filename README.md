@@ -25,7 +25,7 @@
     <br />
     <br />
     <b>Tested On </b> <br/>
-	MacOS
+	MacOS · Windows
   </p>
 <br />
 
@@ -54,7 +54,7 @@
 
 # Download
 
-Download the latest version of **_viforest_** directly from the [releases page](https://github.com/woflydev/viforest/releases). Please refer to the big fat "caution" section above for for MacOS and Windows installations!
+Download the latest version of **_viforest_** directly from the [releases page](https://github.com/woflydev/viforest/releases). Please refer to the big fat "caution" section above for MacOS and Windows installations!
 
 # Motivations
 
