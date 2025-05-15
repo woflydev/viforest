@@ -19,14 +19,16 @@
 	Linux
     <br />
     <br />
+    	<b>Tested On </b> <br/>
+	MacOS · Windows
+		<br /> 
+		<br />
     <b>Not Supported </b> <br/>
 	Android ·
     iOS
     <br />
     <br />
-    <b>Tested On </b> <br/>
-	MacOS · Windows
-  </p>
+          </p>
 <br />
 
 > [!WARNING]  
