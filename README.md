@@ -42,7 +42,7 @@
 >
 > **Windows**: Likewise, I haven't signed the application for Windows, so your system will likely pop up with a SmartScreen warning. You can ignore this warning and click **"Run Anyway"**.
 >
-> You can read about the safety of this app in the FAQ section below.
+> If you are concerned about this, I've written a little about the safety of **_viforest_** in the FAQ section below.
 
 <p align="center">
     <picture>
