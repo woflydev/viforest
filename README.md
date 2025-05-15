@@ -68,7 +68,7 @@ Enter **_viforest_**! This extremely creatively named app streamlines WLAN trans
 Beautiful user interface with support for both light and dark mode, built with [shadcn/ui](https://ui.shadcn.com/) and [TailwindCSS](https://tailwindcss.com/).
 
 ### Device Auto-Connect
-Stop looking for your WLAN Transfer address! **_viforest_** allows you to add as many IP addresses as you want and automatically connects to the IP that corresponds to the network you're on.
+Stop looking for your WLAN Transfer address every time you connect to a new network! **_viforest_** allows you to add as many IP addresses as you want and automatically connects to the IP that corresponds to the network you're on.
 
 ### Quick Access Bar
 Save your favourite folders to the quick access bar for one-click upload!
