@@ -2,9 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { openPath } from '@tauri-apps/plugin-opener';
 import React from "react";
-import Link from "next/link";
 
 export function HelpModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   return (
@@ -19,11 +17,11 @@ export function HelpModal({ open, onOpenChange }: { open: boolean; onOpenChange:
               </p>
               <br></br>
               <p>
-                Find your device's IP by swiping down from the top right edge of the screen to access <b>Quick Settings</b>. Long-press <b>WLAN Transfer</b> to view the IP address. Add this IP address to <b><i>viforest</i></b> by accessing the <b>Settings</b> page on the dock.
+                Find your device&apos;s IP by swiping down from the top right edge of the screen to access <b>Quick Settings</b>. Long-press <b>WLAN Transfer</b> to view the IP address. Add this IP address to <b><i>viforest</i></b> by accessing the <b>Settings</b> page on the dock.
               </p>
               <br></br>
               <p>
-                Note that your device's IP will change based on the network you're connected to. On startup, <b><i>viforest</i></b> will automatically attempt to restore previous connections.
+                Note that your device&apos;s IP will change based on the network you&apos;re connected to. On startup, <b><i>viforest</i></b> will automatically attempt to restore previous connections.
               </p>
             </div>
           </DialogDescription>

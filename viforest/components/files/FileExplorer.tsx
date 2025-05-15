@@ -32,8 +32,6 @@ import { useFileExplorer } from '@/hooks/useFileExplorer';
 import { DeviceConnection, FileItem } from '@/types';
 import { defaultSavedPaths } from '@/config/savedPaths.config';
 import { useGlobalDragState } from '@/contexts/DragContext';
-import { uploadFile } from '@/lib/api';
-import { toast } from "sonner";
 import { useToast } from "@/hooks/use-toast";
 
 function Skeleton({ className }: { className?: string }) {

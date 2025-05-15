@@ -11,7 +11,7 @@
     "lint": "next lint",
     "tauri-dev": "tauri dev",
     "tauri-build": "tauri build --bundles app",
-    "tauri-icons": "tauri icon ./logo.png"
+    "tauri-icons": "tauri icon ./logo-circle.png"
   },
   "keywords": [],
   "author": "woflydev",

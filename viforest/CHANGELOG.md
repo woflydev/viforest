@@ -7,15 +7,16 @@
 - [x] Support revealing files on download & opening links in modals
 - [x] Support for pasting pages directly from OneNote and auto-converting to PDF
 - [x] Support renaming files on upload
+- [ ] Fix not refreshing when adding -> connecting device
 
 # Low Priority:
-- [ ] Fix logo (it's so goofy)
+- [x] Fix logo (it's so goofy)
 - [ ] Fix the drag and drop animation
 - [ ] Fix UI not supporting different small screens
 - [ ] Fix device connection flash when clicking into the dialog
 
 # Planned Features:
-- [ ] Improve OneNote PDF conversion
+- [ ] Auto update support
+- [ ] Improve OneNote PDF conversion (resizing images, etc.)
 - [ ] Full file tree traversal on initial load to eliminate loading state when clicking between folders
 - [ ] Option to choose file format other than PDF for download
-- [ ] Native file explorer integration (right click to send)

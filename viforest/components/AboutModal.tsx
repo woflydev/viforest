@@ -21,7 +21,7 @@ export function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange
                 Found a bug or want to request a feature? Please let me know on <a target="_blank" href="https://github.com/woflydev/viforest" className="font-semibold text-indigo-500 hover:text-indigo-700 transition-colors">GitHub</a>.
               </p>
               <p className="mt-4">
-              <span><span className="text-xs">p.s. I'm not affiliated with Viwoods!</span></span>
+              <span><span className="text-xs">p.s. I&apos;m not affiliated with Viwoods!</span></span>
               </p>
               
             </div>

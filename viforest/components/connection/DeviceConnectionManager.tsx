@@ -149,7 +149,7 @@ export function DeviceConnectionManager({ minimalist }: { minimalist?: boolean }
             <div className="space-y-3 py-1">
               <Input
                 id="ip-address"
-                placeholder="192.168.1.1"
+                placeholder="192.168.0.117"
                 value={newIp}
                 onChange={(e) => setNewIp(e.target.value)}
                 className="text-sm"
