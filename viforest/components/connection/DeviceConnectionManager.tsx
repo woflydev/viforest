@@ -53,7 +53,9 @@ export function DeviceConnectionManager({ minimalist }: { minimalist?: boolean }
       });
       setNewIp('');
       setNewName('');
+      refreshCurrentFolder();
       setIsAddDialogOpen(false);
+      window.location.href = '/';
     } else {
       toast({
         title: 'Failed to add device',
@@ -170,7 +172,7 @@ export function DeviceConnectionManager({ minimalist }: { minimalist?: boolean }
                     Connecting...
                   </>
                 ) : (
-                  'Add Device'
+                  'Add IP'
                 )}
               </Button>
             </DialogFooter>

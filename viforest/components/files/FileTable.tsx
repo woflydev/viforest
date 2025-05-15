@@ -6,7 +6,6 @@ import { downloadFile } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Download, Folder, File } from 'lucide-react';
 import { formatDate } from '@/lib/formatters';
-import { openPath, revealItemInDir } from '@tauri-apps/plugin-opener';
 
 interface FileTableProps {
   files: FileItem[];
@@ -67,9 +66,9 @@ export function FileTable({
       <Table>
         <TableHeader>
           <TableRow className='h-[50px]'>
-            <TableHead className="w-[240px]">Name</TableHead>
+            <TableHead className="w-[140px]">Name</TableHead>
             <TableHead className="w-[120px]">Modified</TableHead>
-            <TableHead className="text-right w-[60px]">Actions</TableHead>
+            <TableHead className="text-center w-[90px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -83,19 +82,23 @@ export function FileTable({
                   : 'hover:bg-muted/40'
               }
             >
-              <TableCell className="font-medium flex items-center gap-2">
-                {file.isDirectory ? (
-                  <Folder className="h-4 w-4 text-blue-500" />
-                ) : (
-                  <File className="h-4 w-4 text-muted-foreground" />
-                )}
-                <span className="truncate">{file.name}</span>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                    {file.isDirectory ? (
+                      <Folder className="h-4 w-4 text-blue-500" />
+                    ) : (
+                      <File className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </span>
+                  <span className="break-words whitespace-pre-line min-w-0">{file.name}</span>
+                </div>
               </TableCell>
               {/* Removed Size cell */}
               <TableCell className='text-md'>
                 {file.modifiedDate ? formatDate(file.modifiedDate) : '-'}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-center">
                 {!file.isDirectory && (
                   <Button
                     variant="ghost"
