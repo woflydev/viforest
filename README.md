@@ -36,11 +36,13 @@
 > **I am not affiliated with Viwoods in any way. This is an educational project that uses publicly accessible APIs.**
 
 > [!CAUTION]
-> **Installation of viforest (especially on MacOS) requires you to do some extra steps.**
+> **Installation (especially on MacOS) requires you to do some extra steps.**
 >
-> MacOS: Because I don't have a MacOS developer license, I can't sign the app. MacOS will say something along the lines of "this app is broken and cannot be opened" when you try to run it. You will need to allow the app to run by going to **System Preferences > Security & Privacy > General**, scrolling down, and clicking **"Open Anyway"** when prompted. If you don't see this option, right click the app in your **Applications** folder and select **"Open"**, then check again.
+> **MacOS**: Because I don't have a MacOS developer license, I can't sign the app. MacOS will say something along the lines of "this app is broken and cannot be opened" when you try to run it. You will need to allow the app to run by going to **System Preferences > Security & Privacy > General**, scrolling down, and clicking **"Open Anyway"** when prompted. If you don't see this option, right click the app in your **Applications** folder and select **"Open"**, then check again. On newer versions of MacOS, you will also have to allow the app to access your Downloads folder and your local network (to talk to the AIPaper). You can do this by going to **System Preferences > Security & Privacy > Privacy** and enabling **"Files and Folders"** and **"Local Network"**.
 >
-> Windows: Likewise, I haven't signed the application for Windows, so your system will likely pop up with a SmartScreen warning. You can ignore this warning and click **"Run Anyway"**.
+> **Windows**: Likewise, I haven't signed the application for Windows, so your system will likely pop up with a SmartScreen warning. You can ignore this warning and click **"Run Anyway"**.
+>
+> You can read about the safety of this app in the FAQ section below.
 
 <p align="center">
     <picture>
@@ -85,7 +87,7 @@ Almost all functionality from the original Viwoods WLAN Transfer interface is fu
 2. Will there be an Android or iOS version?
     - As much as I'd like to bring **_viforest_** to mobile, I don't have the time or resources to do so (the Apple Developer License is rather expensive). I will consider Android if I find the time.
 3. Is **_viforest_** safe?
-   - This project is open source. Anyone can read the code, so feel free to do so! If it makes you feel better, **_viforest_** only uses official Viwoods APIs (i.e., when interacting with files on your device, it goes through all the same channels as the official client). All the extra features **_viforest_** has are client-side, so it shouldn't void your warranty (I'm not a lawyer, this is an opinion).
+   - This project is open source. Anyone can read the code, which means anyone can find and fix any security vulnerabilities that I may have overlooked. **_viforest_** also only uses official Viwoods APIs (i.e., when interacting with files on your device, it goes through all the same channels as the official client). All network traffic is on your local network between you and your device. All the extra features **_viforest_** has are client-side, so it shouldn't void your warranty (I'm not a lawyer, this is an opinion).
 4. Can I ask for a feature?
    - I primarily made **_viforest_** to fulfill my own workflow needs, so I have a list of future features I'm planning on implementing. But feel free to open an issue or fork the repository to make your own changes! You can check the [CHANGELOG.md](https://github.com/woflydev/viforest/blob/main/viforest/CHANGELOG.md) file for the current roadmap.
 5. I want to support this app, what can I do?
