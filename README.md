@@ -26,8 +26,7 @@
 
 > [!WARNING]  
 > **_viforest_ is still under active development**. <br />
-> Please check the [changelog](https://github.com/woflydev/viforest/blob/main/viforest/CHANGELOG.md) for our roadmap for future features and changes. <br />
-> While all care will be taken to migrate data safely across versions, stuff may happen.
+> Please check the [changelog](https://github.com/woflydev/viforest/blob/main/viforest/CHANGELOG.md) for our roadmap for future features and changes.
 
 <p align="center">
     <picture>
