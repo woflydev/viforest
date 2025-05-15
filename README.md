@@ -10,7 +10,7 @@
 	<p align="center">
 	A beautiful and open-source UI alternative to the default Viwoods WLAN transfer tool.
     <br />
-    <a href="https://viforest.woflydev.com"><strong>Get Started! »»»</strong></a>
+    <a href="https://github.com/woflydev/viforest/releases"><strong>Get Started! »»»</strong></a>
     <br />
     <br />
     <b>Compatible with </b> <br/>
