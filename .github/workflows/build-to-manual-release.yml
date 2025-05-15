@@ -26,6 +26,8 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: viforest # Ensure the repository is checked out into the 'viforest' directory
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
@@ -39,7 +41,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v4
         with:
-          working-directory: viforest
+          working-directory: viforest # Ensure the correct working directory is specified
           node-version: lts/*
           cache: 'pnpm' # Set this to npm, yarn or pnpm.
 
