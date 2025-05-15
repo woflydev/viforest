@@ -33,14 +33,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-
       - name: setup node
         uses: actions/setup-node@v4
         with:
+          working-directory: viforest
           node-version: lts/*
           cache: 'pnpm' # Set this to npm, yarn or pnpm.
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable # Set this to dtolnay/rust-toolchain@nightly
@@ -56,6 +57,7 @@ jobs:
       - name: install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: pnpm install # change this to npm or pnpm depending on which one you use.
+        working-directory: viforest
 
       - uses: tauri-apps/tauri-action@v0
         env:
