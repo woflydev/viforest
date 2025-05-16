@@ -40,11 +40,18 @@
 > [!CAUTION]
 > **Installation (especially on MacOS) requires you to do some extra steps.**
 >
-> **MacOS**: Because I don't have a MacOS developer license, I can't sign the app. MacOS will say something along the lines of "this app is broken and cannot be opened" when you try to run it. You will need to allow the app to run by going to **System Preferences > Security & Privacy > General**, scrolling down, and clicking **"Open Anyway"** when prompted. If you don't see this option, right click the app in your **Applications** folder and select **"Open"**, then check again. On newer versions of MacOS, you will also have to allow the app to access your Downloads folder and your local network (to talk to the AIPaper). You can do this by going to **System Preferences > Security & Privacy > Privacy** and enabling **"Files and Folders"** and **"Local Network"**.
+> **MacOS**: Because I don't have a MacOS developer license, I can't sign the app. MacOS will say something along the lines of "this app is broken and cannot be opened" when you try to run it. 
+> In most cases, you'll have to open the MacOS Terminal and run the following command:
+> ```bash
+> xattr -r -d com.apple.quarantine /Applications/viforest.app
+> ```
+> This command removes the arbitrary Apple quarantine flag that MacOS places on all downloaded applications. [Read more about it here.](https://superuser.com/questions/526920/how-to-remove-quarantine-from-file-permissions-in-os-x)
+>
+> If this still doesn't work, you will need to allow the app to run by going to **System Preferences > Security & Privacy > General**, scrolling down, and clicking **"Open Anyway"** when prompted. On newer versions of MacOS, you will also have to allow the app to access your Downloads folder and your local network (to talk to the AIPaper) when prompted. You can do this manually by going to **System Preferences > Security & Privacy > Privacy** and enabling **"Files and Folders"** and **"Local Network"**.
 >
 > **Windows**: Likewise, I haven't signed the application for Windows, so your system will likely pop up with a SmartScreen warning. You can ignore this warning and click **"Run Anyway"**.
 >
-> If you are concerned about this, I've written a little about the safety of **_viforest_** in the FAQ section below.
+> If you are concerned about any of this, I've written a little about the safety of **_viforest_** in the FAQ section below.
 
 <p align="center">
     <picture>
