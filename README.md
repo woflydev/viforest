@@ -43,7 +43,7 @@
 > **MacOS**: Because I don't have a MacOS developer license, I can't sign the app. MacOS will say something along the lines of "this app is broken and cannot be opened" when you try to run it. 
 > In most cases, you'll have to open the MacOS Terminal and run the following command:
 > ```bash
-> xattr -r -d com.apple.quarantine /Applications/viforest.app
+> xattr -d com.apple.quarantine /Applications/viforest.app
 > ```
 > This command removes the arbitrary Apple quarantine flag that MacOS places on all downloaded applications. [Read more about it here.](https://superuser.com/questions/526920/how-to-remove-quarantine-from-file-permissions-in-os-x)
 >
