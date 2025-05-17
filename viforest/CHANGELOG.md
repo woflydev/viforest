@@ -9,6 +9,7 @@
 - [x] Support renaming files on upload
 - [ ] Fix not refreshing when adding -> connecting device
 - [ ] Add documentation for OneNote paste in info dialog
+- [ ] Update viforest website for documentation and landing page
 
 # Low Priority:
 - [x] Fix logo (it's so goofy)
